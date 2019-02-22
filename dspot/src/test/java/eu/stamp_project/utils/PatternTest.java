@@ -15,7 +15,8 @@ public class PatternTest {
     @Test
     public void patternTest(){
         CustomPattern p = new CustomPattern();
-        p.patternTest();
+        // p.patternTest();
+        p.traverse();
         int i = 1;
 
     }

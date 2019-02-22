@@ -101,4 +101,22 @@ public class CustomPattern {
             }
         }
     }
+
+    void traverse(){
+
+        // from getSpoonModelOf(String pathToSources, String pathToDependencies) in DSportCompiler
+        Launcher launcher = new Launcher();
+        launcher.getEnvironment().setNoClasspath(true);
+        launcher.addInputResource("/home/andrew/Skrivbord/stamp/issue-535/pattern-test/");
+        launcher.buildModel();
+        Factory factory = launcher.getFactory();
+        List<CtType<?>> classes = factory.Type().getAll();
+
+        List<CtElement> elements = classes.get(0).getMethodsByName("testmethod1").get(0).getElements(new TypeFilter<>(CtElement.class));
+
+        for (CtElement v : elements) {
+            System.out.println("--- new element --- : " + v.getClass().getSimpleName());
+            System.out.println(v.toString());
+        }
+    }
 }
