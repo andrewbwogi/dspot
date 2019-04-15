@@ -23,6 +23,10 @@ public class Example {
 		variableInsideConstructor = 15; 
 		index = 2 * variableInsideConstructor;
 	}
+
+	public int getInt() {
+		return 1;
+	}
 	
 	private int index = 419382;
 	private static String s = "Overloading field name with parameter name";

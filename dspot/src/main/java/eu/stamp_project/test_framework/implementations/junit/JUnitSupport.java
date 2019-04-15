@@ -96,6 +96,9 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         final CtInvocation invocation = factory.createInvocation();
         final CtExecutableReference<?> executableReference = factory.Core().createExecutableReference();
         executableReference.setStatic(true);
+
+        // todo debug
+        System.out.println("(((((((((((((((((((( " + assertion.toStringAccordingToClass(JUnitSupport.class));
         executableReference.setSimpleName(assertion.toStringAccordingToClass(JUnitSupport.class));
         executableReference.setDeclaringType(factory.Type().createReference(this.qualifiedNameOfAssertClass));
         invocation.setExecutable(executableReference);
@@ -125,6 +128,7 @@ public abstract class JUnitSupport extends AbstractTestFramework {
     public static final String ASSERT_FALSE = "assertFalse";
     public static final String ASSERT_EQUALS = "assertEquals";
     public static final String ASSERT_NOT_EQUALS = "assertNotEquals";
+    public static final String ASSERT_ARRAY_EQUALS = "assertArrayEquals";
 
     @Override
     public CtMethod<?> generateExpectedExceptionsBlock(CtMethod<?> test, Failure failure, int numberOfFail) {

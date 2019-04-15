@@ -43,6 +43,19 @@ public class AssertBuilder {
                                          Set<String> notDeterministValues,
                                          Map<String, Object> observations,
                                          Double delta) {
+        // todo debug
+        System.out.println("********************** new buildAssert");
+        for(String s : notDeterministValues){
+            System.out.print("notDeterministValues: ");
+            System.out.println(s);
+        }
+        for(String key : observations.keySet()){
+            System.out.print("key/value: ");
+            System.out.println(key);
+            System.out.println(observations.get(key));
+        }
+        System.out.println(delta);
+        System.out.println("********** arguments end");
         final Factory factory = InputConfiguration.get().getFactory();
         final Translator translator = new Translator(factory);
         final List<CtStatement> invocations = new ArrayList<>();
@@ -51,13 +64,18 @@ public class AssertBuilder {
                 Object value = observations.get(observationKey);
                 final CtExpression variableRead = translator.translate(observationKey);
                 if (value == null) {
+                    // todo debug
+                    System.out.println("in value is null");
                     final CtInvocation<?> assertNull = TestFramework.get()
                             .buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_NULL, Collections.singletonList(variableRead));
                     invocations.add(assertNull);
                     variableRead.setType(factory.Type().NULL_TYPE);
                 } else {
+
                     /* Boolean */
                     if (value instanceof Boolean) {
+                        // todo debug
+                        System.out.println("in boolean");
                         invocations.add(
                                 TestFramework.get()
                                         .buildInvocationToAssertion(testMethod,
@@ -65,8 +83,11 @@ public class AssertBuilder {
                                                 Collections.singletonList(variableRead)
                                         )
                         );
+
                         /* Primitive collection */
                     } else if (TypeUtils.isPrimitiveCollection(value)) {
+                        // todo debug
+                        System.out.println("in collection");
                         Collection valueCollection = (Collection) value;
                         if (valueCollection.isEmpty()) {
                             final CtInvocation<?> isEmpty = factory.createInvocation(variableRead,
@@ -80,9 +101,19 @@ public class AssertBuilder {
                         } else {
                             invocations.addAll(buildSnippetAssertCollection(factory, testMethod, observationKey, (Collection) value));
                         }
+
+                        // Array
                     } else if (TypeUtils.isArray(value)) {//TODO must be implemented
                         //invocations.add(buildAssertForArray(factory, testMethod, observationKey, value));
+
+                        invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_ARRAY_EQUALS,
+                                Arrays.asList(printPrimitiveString(factory, value),
+                                        variableRead)));
+
+                        // Map
                     } else if (TypeUtils.isPrimitiveMap(value)) {//TODO
+                        // todo debug
+                        System.out.println("in map");
                         Map valueCollection = (Map) value;
                         if (valueCollection.isEmpty()) {
                             final CtInvocation<?> isEmpty = factory.createInvocation(variableRead,
@@ -98,7 +129,10 @@ public class AssertBuilder {
                             invocations.addAll(buildSnippetAssertMap(factory, testMethod, observationKey, (Map) value));
                         }
                     } else {
+
                         /* Other types */
+                        // todo debug
+                        System.out.println("in other types");
                         addTypeCastIfNeeded(variableRead, value);
                         if (isFloating.test(value)) {
                             invocations.add(
@@ -110,12 +144,16 @@ public class AssertBuilder {
                                             )));
                         } else {
                             if (value instanceof String) {
+                                // todo debug
+                                System.out.println("in string");
                                 if (!AssertGeneratorHelper.containsObjectReferences((String) value)) {
                                     invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
                                             Arrays.asList(printPrimitiveString(factory, value),
                                                     variableRead)));
                                 }
                             } else {
+                                // todo debug
+                                System.out.println("in ultimate else");
                                 invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
                                         Arrays.asList(printPrimitiveString(factory, value),
                                                 variableRead)));
@@ -125,6 +163,10 @@ public class AssertBuilder {
                     variableRead.setType(factory.Type().createReference(value.getClass()));
                 }
             }
+        }
+        // todo debug
+        for(CtStatement s : invocations){
+            System.out.println(s);
         }
         return invocations;
     }

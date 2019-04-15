@@ -38,6 +38,15 @@ public class ParametrizedTestSuiteExample {
         example.Example ex = new example.Example();
         java.lang.String s = "abcd";
         org.junit.Assert.assertEquals('d', ex.charAt(s, ((s.length()) - 1)));
+	int[] values = {0, 1, 2, 3};
+	int[] values2 = {0, 1, 2, 3};
+	String[] values3 = {"one","two","three"};
+	org.junit.Assert.assertEquals(0, values[0]);
+	org.junit.Assert.assertArrayEquals(values, values2);
+	//ex.getInt();
+	int i = 2;
+	int i2 = 2;
+	org.junit.Assert.assertEquals(i2, i);
     }
 
     @org.junit.Test

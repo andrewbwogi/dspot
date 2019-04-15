@@ -24,6 +24,7 @@ import spoon.support.SpoonClassNotFoundException;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by Benjamin DANGLOT
@@ -52,9 +53,22 @@ public class AssertGeneratorHelper {
 
     static CtMethod<?> createTestWithLog(CtMethod test, final String filter,
                                          List<CtLocalVariable<?>> ctVariableReads) {
+        // todo debug
+        System.out.println();
+        System.out.println("--------------------------------------------- in createTestWithLog");
+        for(CtLocalVariable v : ctVariableReads){
+            System.out.println(v);
+        }
         CtMethod clone = CloneHelper.cloneTestMethodNoAmp(test);
         clone.setSimpleName(test.getSimpleName() + "_withlog");
         final List<CtStatement> allStatement = clone.getElements(new TypeFilter<>(CtStatement.class));
+        // todo debug
+        List<CtStatement> toLog = allStatement.stream().filter(statement -> isStmtToLog(filter, statement)).collect(Collectors.toList());
+        System.out.println("-------------- toLog");
+        for(CtStatement l : toLog){
+            System.out.println(l);
+        }
+        System.out.println("-------------- end toLog");
         allStatement.stream()
                 .filter(statement -> isStmtToLog(filter, statement) || ctVariableReads.contains(statement))
                 .forEach(statement ->
@@ -79,17 +93,29 @@ public class AssertGeneratorHelper {
     }
 
     private static boolean isStmtToLog(String filter, CtStatement statement) {
+        // todo debug
+        System.out.println("xxxxxxxxxxxxxxxxxxxx in isStmtToLog. statement: " + statement);
         if (!(statement.getParent() instanceof CtBlock)) {
+            // todo debug
+            System.out.println("instance of CtBlock");
             return false;
         }
 
         // contract: for now, we do not log values inside loop
         if (statement.getParent(CtLoop.class) != null) {
+            // todo debug
+            System.out.println("inside loop");
             return false;
         }
 
         if (statement instanceof CtInvocation) {
+            // todo debug
+            System.out.println("in invocation");
             CtInvocation invocation = (CtInvocation) statement;
+            // todo debug
+            System.out.println("isCorrectReturn: " + isCorrectReturn(invocation));
+            System.out.println("isCorrectReturn: " + (isCorrectReturn(invocation)
+                    && !isGetter(invocation)));
             return (isCorrectReturn(invocation)
                     && !isGetter(invocation));
         }
@@ -99,6 +125,8 @@ public class AssertGeneratorHelper {
                 statement instanceof CtVariableWrite) {
 
             if (statement instanceof CtNamedElement) {
+                // todo debug
+                System.out.println("in named element");
                 if (((CtNamedElement) statement).getSimpleName()
                         .startsWith("__DSPOT_")) {
                     return false;
@@ -107,16 +135,26 @@ public class AssertGeneratorHelper {
 
             final CtTypeReference type = ((CtTypedElement) statement).getType();
             if (type.getQualifiedName().startsWith(filter)) {
+                // todo debug
+                System.out.println("in filter");
                 return true;
             } else {
                 try {
+                    // todo debug
+                    System.out.println("in equals string");
+                    System.out.println("returning: " + type.getTypeDeclaration().getQualifiedName()
+                            .equals("java.lang.String"));
                     return type.getTypeDeclaration().getQualifiedName()
                             .equals("java.lang.String");
                 } catch (SpoonClassNotFoundException e) {
+                    // todo debug
+                    System.out.println("SpoonClassNotFoundException");
                     return false;
                 }
             }
         } else {
+            // todo debug
+            System.out.println("in last else");
             return false;
         }
     }

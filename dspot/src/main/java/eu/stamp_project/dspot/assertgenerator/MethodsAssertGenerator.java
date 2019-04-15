@@ -71,7 +71,7 @@ public class MethodsAssertGenerator {
      * <p>Details of the assertion generation in {@link #buildTestWithAssert(CtMethod, Map)}.
      *
      * @param testClass Test class
-     * @param testCases Passing test methods
+     * @param testCases Passing and input amplified test methods
      * @return New tests with new assertions generated from observation points values
      */
     public List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) {
@@ -115,6 +115,9 @@ public class MethodsAssertGenerator {
         LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
         TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
         try {
+            // todo debug
+            System.out.println("/////////////////////////// printing clone");
+            System.out.println(clone);
             final TestResult result = TestCompiler.compileAndRun(clone,
                     this.compiler,
                     testsToRun,
@@ -148,7 +151,11 @@ public class MethodsAssertGenerator {
         CtMethod testWithAssert = CloneHelper.cloneTestMethodForAmp(test, "");
         int numberOfAddedAssertion = 0;
         List<CtStatement> statements = Query.getElements(testWithAssert, new TypeFilter(CtStatement.class));
+
+        // for every observation, create an assertion
         for (String id : observations.keySet()) {
+            // todo debug
+            System.out.println("--------------------new observation, new assertion");
             if (!id.split("__")[0].equals(testWithAssert.getSimpleName())) {
                 continue;
             }
@@ -159,6 +166,7 @@ public class MethodsAssertGenerator {
                     Double.parseDouble(configuration.getDelta())
             );
 
+            // skip the current observation if it produces an assertion that has already been added to the test method
             if (assertStatements.stream()
                     .map(Object::toString)
                     .map("// AssertGenerator add assertion\n"::concat)
@@ -177,22 +185,34 @@ public class MethodsAssertGenerator {
                     if (statementToBeAsserted instanceof CtBlock) {
                         break;
                     }
+
+                    // if statement to be asserted is a method or constructor call, create a local variable
                     if (statementToBeAsserted instanceof CtInvocation &&
                             !AssertGeneratorHelper.isVoidReturn((CtInvocation) statementToBeAsserted) &&
                             statementToBeAsserted.getParent() instanceof CtBlock) {
+                        // todo debug
+                        System.out.println(statementToBeAsserted);
+                        // replace the invocation with a local variable
                         CtInvocation invocationToBeReplaced = (CtInvocation) statementToBeAsserted.clone();
                         final CtLocalVariable localVariable = factory.createLocalVariable(
                                 AssertGeneratorHelper.getCorrectTypeOfInvocation(invocationToBeReplaced),
                                 "o_" + id.split("___")[0],
                                 invocationToBeReplaced
                         );
+
+                        // place the local variable and the assertion in the test method
                         statementToBeAsserted.replace(localVariable);
                         DSpotUtils.addComment(localVariable, "AssertGenerator create local variable with return value of invocation", CtComment.CommentType.INLINE);
                         localVariable.setParent(statementToBeAsserted.getParent());
                         addAtCorrectPlace(id, localVariable, assertStatement, statementToBeAsserted);
                         statements.remove(line);
                         statements.add(line, localVariable);
+
+                    // no creation of local variable is needed, just place the assertion in the test method
                     } else {
+                        // todo debug
+                        System.out.println("ooooooooooooooo assignment");
+                        System.out.println(statementToBeAsserted);
                         addAtCorrectPlace(id, lastStmt, assertStatement, statementToBeAsserted);
                     }
                     lastStmt = assertStatement;
@@ -204,6 +224,9 @@ public class MethodsAssertGenerator {
         }
         Counter.updateAssertionOf(testWithAssert, numberOfAddedAssertion);
         if (!testWithAssert.equals(test)) {
+            // todo debug
+            System.out.println("!!!!!!!!!!!!!!!!!!!! TEST WITH ASSERT");
+            System.out.println(testWithAssert);
             return testWithAssert;
         } else {
             AmplificationHelper.removeAmpTestParent(testWithAssert);
