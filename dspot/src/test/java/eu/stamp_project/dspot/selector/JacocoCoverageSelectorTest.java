@@ -3,15 +3,21 @@ package eu.stamp_project.dspot.selector;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
+import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Benjamin DANGLOT
@@ -26,10 +32,8 @@ public class JacocoCoverageSelectorTest {
 
 	private static final char DECIMAL_SEPARATOR = (((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator());
 
-
-	// TODO Flaky on the number of amplified tests, i.e. the assertion on the report fails
 	@Test
-	public void testDSpotWithJacocoCoverageSelector() throws Exception {
+	public void testRemoveOverlappingTestsWithJacocoCoverageSelector() throws Exception {
 		try {
 			FileUtils.deleteDirectory(new File("target/trash"));
 		} catch (Exception ignored) {
@@ -37,23 +41,20 @@ public class JacocoCoverageSelectorTest {
 		}
 		RandomHelper.setSeedRandom(23L);
 		InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-		DSpot dspot = new DSpot(2,
-				Arrays.asList(new TestDataMutator(), new MethodGeneratorAmplifier(), new ReturnValueAmplifier()),
-				new JacocoCoverageSelector());
-		dspot.amplifyTestClassTestMethod("example.TestSuiteExample", "test2");
-
-		/*try (BufferedReader buffer = new BufferedReader(new FileReader(configuration.getOutputDirectory() +
-				"example.TestSuiteExample_jacoco_instr_coverage_report.txt"
-		))) {
+		DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), new JacocoCoverageSelector());
+		dspot.amplifyTestClass("example.TestSuiteDuplicationExample");
+		String path = InputConfiguration.get().getOutputDirectory() + System.getProperty("file.separator")
+				+ "example.TestSuiteDuplicationExample" + "_jacoco_instr_coverage_report.txt";
+		try (BufferedReader buffer = new BufferedReader(new FileReader(path))) {
 			assertEquals(expectedReport, buffer.lines().collect(Collectors.joining(nl)));
-		}*/
+		}
 	}
 
 	private static final String expectedReport = nl + "======= REPORT =======" + nl +
-			"Initial instruction coverage: 33 / 37" + nl +
-			"89" + DECIMAL_SEPARATOR + "19%" + nl +
-			"Amplification results with 10 amplified tests." + nl +
-			"Amplified instruction coverage: 37 / 37" + nl +
-			"100" + DECIMAL_SEPARATOR + "00%";
+			"Initial instruction coverage: 23 / 34" + nl +
+			"67" + DECIMAL_SEPARATOR + "65%" + nl +
+			"Amplification results with 3 amplified tests." + nl +
+			"Amplified instruction coverage: 27 / 34" + nl +
+			"79" + DECIMAL_SEPARATOR + "41%";
 
 }
