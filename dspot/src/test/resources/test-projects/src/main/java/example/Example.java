@@ -17,6 +17,13 @@ public class Example {
 		
 		return s.charAt(s.length()-1);
 	}
+
+	public String getString(){
+		
+		String s = "string";
+		
+		return s;
+	}
 	
 	public Example() {
 		int variableInsideConstructor;
