@@ -1,0 +1,11 @@
+{
+  "name": "example.TestSuiteExampleMod",
+  "nbOriginalTestCases": 2,
+  "initialInstructionCovered": 23,
+  "initialInstructionTotal": 34,
+  "percentageinitialInstructionCovered": 67.64705882352942,
+  "amplifiedInstructionCovered": 34,
+  "amplifiedInstructionTotal": 34,
+  "percentageamplifiedInstructionCovered": 100.0,
+  "testCases": []
+}
