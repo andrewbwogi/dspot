@@ -117,11 +117,12 @@ public abstract class AbstractSelectorTest2 {
             //ignored
         }*/
 
+        /*
         this.testSelectorUnderTest.selectToKeep(
                 this.testSelectorUnderTest.selectToAmplify(
                         getDuplicationTestClass(), getDuplicationTest()
                 )
-        );
+        );*/
 
 
         /*this.testSelectorUnderTest.selectToKeep(
@@ -130,7 +131,12 @@ public abstract class AbstractSelectorTest2 {
                 )
         );*/
 
-        this.testSelectorUnderTest.report();
+        // InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
+        DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), new PitMutantScoreSelector());
+        dspot.amplifyTestClass("example.TestSuiteDuplicationExample");
+
+        //this.testSelectorUnderTest.report();
+
         try (BufferedReader buffer = new BufferedReader(new FileReader(getPathToReportFileDuplication()))) {
             assertEquals(getContentReportFileDuplication(),
                     buffer.lines()
