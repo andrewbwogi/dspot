@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 16/03/18
  */
-public abstract class AbstractSelectorTest {
+public abstract class AbstractSelectorTest2 {
 
     protected String getPathToProperties() {
         return "src/test/resources/regression/test-projects_0/test-projects.properties";
@@ -42,7 +42,8 @@ public abstract class AbstractSelectorTest {
         return Utils.findMethod("example.TestSuiteExample", "test2");
     }
 
-    protected List<CtMethod> getDuplicationTest() {
+    protected List<CtMethod<?>> getDuplicationTest() {
+        Utils.findMethod("example.TestSuiteExample", "test2");
         return Arrays.asList(Utils.findMethod("example.TestSuiteDuplicationExample", "test1"),
                 Utils.findMethod("example.TestSuiteDuplicationExample", "test2"));
     }
@@ -51,17 +52,21 @@ public abstract class AbstractSelectorTest {
         return Utils.findClass("example.TestSuiteExample");
     }
 
+    protected CtClass<?> getDuplicationTestClass() {
+        return Utils.findClass("example.TestSuiteDuplicationExample");
+    }
+
     protected abstract CtMethod<?> getAmplifiedTest();
 
-    //protected abstract List<CtMethod<?>> getAmplifiedTestForDuplicationTest();
+    protected abstract List<CtMethod<?>> getAmplifiedTestForDuplicationTest();
 
     protected abstract String getPathToReportFile();
 
     protected abstract String getContentReportFile();
 
-    //protected abstract String getPathToReportFileDuplication();
+    protected abstract String getPathToReportFileDuplication();
 
-    //protected abstract String getContentReportFileDuplication();
+    protected abstract String getContentReportFileDuplication();
 
     protected TestSelector testSelectorUnderTest;
 
@@ -76,8 +81,8 @@ public abstract class AbstractSelectorTest {
         this.testSelectorUnderTest = this.getTestSelector();
         this.testSelectorUnderTest.init(Utils.getInputConfiguration());
     }
-
-    /*@Test
+/*
+    @Test
     public void testSelector() throws Exception {
         this.testSelectorUnderTest.selectToKeep(
                 this.testSelectorUnderTest.selectToAmplify(
@@ -112,12 +117,18 @@ public abstract class AbstractSelectorTest {
             //ignored
         }*/
 
-/*
         this.testSelectorUnderTest.selectToKeep(
                 this.testSelectorUnderTest.selectToAmplify(
-                        getTestClass(), getAmplifiedTestForDuplicationTest()
+                        getDuplicationTestClass(), getDuplicationTest()
                 )
         );
+
+
+        /*this.testSelectorUnderTest.selectToKeep(
+                this.testSelectorUnderTest.selectToAmplify(
+                        getDuplicationTestClass(), getAmplifiedTestForDuplicationTest()
+                )
+        );*/
 
         this.testSelectorUnderTest.report();
         try (BufferedReader buffer = new BufferedReader(new FileReader(getPathToReportFileDuplication()))) {
@@ -128,7 +139,7 @@ public abstract class AbstractSelectorTest {
             throw new RuntimeException(e);
         }
 
-*/
+
 
 
         /*RandomHelper.setSeedRandom(23L);

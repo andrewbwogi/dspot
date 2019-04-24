@@ -17,7 +17,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -27,7 +29,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 1/9/17
  */
-public class PitScoreMutantSelectorTest extends AbstractSelectorTest {
+public class PitScoreMutantSelectorTest extends AbstractSelectorTest2 {
 
       /*
             Test the PitMutantScoreSelector:
@@ -61,6 +63,17 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest {
     }
 
     @Override
+    protected List<CtMethod<?>> getAmplifiedTestForDuplicationTest() {
+        final ArrayList<CtMethod<?>> clone = new ArrayList<>();
+        for(CtMethod<?> m : getDuplicationTest()){
+            final CtMethod<?> c = m.clone();
+            Utils.replaceGivenLiteralByNewValue(c, 4);
+            clone.add(c);
+        }
+        return clone;
+    }
+
+    @Override
     protected String getPathToReportFile() {
         return "target/trash/example.TestSuiteExample_mutants_report.txt";
     }
@@ -76,10 +89,26 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest {
     }
 
     @Override
+    protected String getPathToReportFileDuplication() {
+        return "target/trash/example.TestSuiteDuplicationExample_mutants_report.txt";
+    }
+
+    @Override
+    protected String getContentReportFileDuplication() {
+        return AmplificationHelper.LINE_SEPARATOR +
+                "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
+                "PitMutantScoreSelector: " + AmplificationHelper.LINE_SEPARATOR +
+                "The original test suite kills 2 mutants" + AmplificationHelper.LINE_SEPARATOR +
+                "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
+                "it kills 3 more mutants";
+    }
+
+    @Override
     protected Class<?> getClassMinimizer() {
         return PitMutantMinimizer.class;
     }
 
+    /*
     @Test
     public void testRemoveOverlappingTestsWithPitMutantScoreSelector() throws Exception {
         try {
@@ -96,7 +125,7 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest {
         try (BufferedReader buffer = new BufferedReader(new FileReader(path))) {
             assertEquals(expectedReport, buffer.lines().collect(Collectors.joining(nl)));
         }
-    }
+    }*/
 
     private static final String expectedReport = AmplificationHelper.LINE_SEPARATOR +
             "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
