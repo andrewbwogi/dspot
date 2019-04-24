@@ -42,23 +42,11 @@ public abstract class AbstractSelectorTest2 {
         return Utils.findMethod("example.TestSuiteExample", "test2");
     }
 
-    protected List<CtMethod<?>> getDuplicationTest() {
-        Utils.findMethod("example.TestSuiteExample", "test2");
-        return Arrays.asList(Utils.findMethod("example.TestSuiteDuplicationExample", "test1"),
-                Utils.findMethod("example.TestSuiteDuplicationExample", "test2"));
-    }
-
     protected CtClass<?> getTestClass() {
         return Utils.findClass("example.TestSuiteExample");
     }
 
-    protected CtClass<?> getDuplicationTestClass() {
-        return Utils.findClass("example.TestSuiteDuplicationExample");
-    }
-
     protected abstract CtMethod<?> getAmplifiedTest();
-
-    protected abstract List<CtMethod<?>> getAmplifiedTestForDuplicationTest();
 
     protected abstract String getPathToReportFile();
 
@@ -81,8 +69,8 @@ public abstract class AbstractSelectorTest2 {
         this.testSelectorUnderTest = this.getTestSelector();
         this.testSelectorUnderTest.init(Utils.getInputConfiguration());
     }
-/*
-    @Test
+
+    /*@Test
     public void testSelector() throws Exception {
         this.testSelectorUnderTest.selectToKeep(
                 this.testSelectorUnderTest.selectToAmplify(
@@ -117,25 +105,9 @@ public abstract class AbstractSelectorTest2 {
             //ignored
         }*/
 
-        /*
-        this.testSelectorUnderTest.selectToKeep(
-                this.testSelectorUnderTest.selectToAmplify(
-                        getDuplicationTestClass(), getDuplicationTest()
-                )
-        );*/
 
-
-        /*this.testSelectorUnderTest.selectToKeep(
-                this.testSelectorUnderTest.selectToAmplify(
-                        getDuplicationTestClass(), getAmplifiedTestForDuplicationTest()
-                )
-        );*/
-
-        // InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
         DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), new PitMutantScoreSelector());
         dspot.amplifyTestClass("example.TestSuiteDuplicationExample");
-
-        //this.testSelectorUnderTest.report();
 
         try (BufferedReader buffer = new BufferedReader(new FileReader(getPathToReportFileDuplication()))) {
             assertEquals(getContentReportFileDuplication(),
@@ -144,18 +116,5 @@ public abstract class AbstractSelectorTest2 {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
-
-
-        /*RandomHelper.setSeedRandom(23L);
-        InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
-        DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), new PitMutantScoreSelector());
-        dspot.amplifyTestClass("example.TestSuiteDuplicationExample");
-        String path = InputConfiguration.get().getOutputDirectory() + System.getProperty("file.separator")
-                + "example.TestSuiteDuplicationExample" + "_mutants_report.txt";
-        try (BufferedReader buffer = new BufferedReader(new FileReader(path))) {
-            assertEquals(expectedReport, buffer.lines().collect(Collectors.joining(nl)));
-        }*/
     }
 }

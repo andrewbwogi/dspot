@@ -63,17 +63,6 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest2 {
     }
 
     @Override
-    protected List<CtMethod<?>> getAmplifiedTestForDuplicationTest() {
-        final ArrayList<CtMethod<?>> clone = new ArrayList<>();
-        for(CtMethod<?> m : getDuplicationTest()){
-            final CtMethod<?> c = m.clone();
-            Utils.replaceGivenLiteralByNewValue(c, 4);
-            clone.add(c);
-        }
-        return clone;
-    }
-
-    @Override
     protected String getPathToReportFile() {
         return "target/trash/example.TestSuiteExample_mutants_report.txt";
     }
