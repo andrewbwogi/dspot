@@ -5,6 +5,7 @@ import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
 import eu.stamp_project.dspot.amplifier.ReturnValueAmplifier;
 import eu.stamp_project.dspot.amplifier.StringLiteralAmplifier;
 import eu.stamp_project.dspot.amplifier.TestDataMutator;
+import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.RandomHelper;
 import org.apache.commons.io.FileUtils;
@@ -32,6 +33,41 @@ public class JacocoCoverageSelectorTest {
 
 	private static final char DECIMAL_SEPARATOR = (((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator());
 
+	private Delegator delegator = new Delegator();
+
+	private class Delegator extends AbstractSelectorTest2 {
+
+		@Override
+		protected TestSelector getTestSelector() {
+			return new JacocoCoverageSelector();
+		}
+
+		@Override
+		protected String getPathToReportFileDuplication() {
+			return "target/trash/example.TestSuiteDuplicationExample_jacoco_instr_coverage_report.txt";
+		}
+
+		@Override
+		protected String getContentReportFileDuplication() {
+			return nl + "======= REPORT =======" + nl +
+					"Initial instruction coverage: 23 / 34" + nl +
+					"67" + DECIMAL_SEPARATOR + "65%" + nl +
+					"Amplification results with 3 amplified tests." + nl +
+					"Amplified instruction coverage: 27 / 34" + nl +
+					"79" + DECIMAL_SEPARATOR + "41%";
+		}
+
+
+
+	}
+
+	@Test
+	public void testRemoveOverlappingTestsWithJacocoCoverageSelector() throws Exception {
+		delegator.setUp();
+		delegator.testRemoveOverlappingTestsWithPitMutantScoreSelector();
+	}
+
+	/*
 	@Test
 	public void testRemoveOverlappingTestsWithJacocoCoverageSelector() throws Exception {
 		try {
@@ -48,7 +84,7 @@ public class JacocoCoverageSelectorTest {
 		try (BufferedReader buffer = new BufferedReader(new FileReader(path))) {
 			assertEquals(expectedReport, buffer.lines().collect(Collectors.joining(nl)));
 		}
-	}
+	}*/
 
 	private static final String expectedReport = nl + "======= REPORT =======" + nl +
 			"Initial instruction coverage: 23 / 34" + nl +
