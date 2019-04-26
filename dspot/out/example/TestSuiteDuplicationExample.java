@@ -4,7 +4,7 @@ package example;
 public class TestSuiteDuplicationExample {
     @org.junit.Test(timeout = 10000)
     public void test1litString1() throws java.lang.Exception {
-        example.Example ex = new example.Example();
+        example.example.Example ex = new example.example.Example();
         java.lang.String s = "abcd";
         org.junit.Assert.assertEquals("abcd", s);
         char o_test1litString1__4 = ex.charAt(s, ((s.length()) - 1));
@@ -13,8 +13,20 @@ public class TestSuiteDuplicationExample {
     }
 
     @org.junit.Test(timeout = 10000)
-    public void test1litString7() throws java.lang.Exception {
+    public void test2() throws java.lang.Exception {
         example.Example ex = new example.Example();
+        org.junit.Assert.assertEquals("string", ((example.Example) (ex)).getString());
+        java.lang.String s = "abcd";
+        org.junit.Assert.assertEquals("abcd", s);
+        char o_test2__4 = ex.charAt(s, ((s.length()) - 1));
+        org.junit.Assert.assertEquals('d', ((char) (o_test2__4)));
+        org.junit.Assert.assertEquals("string", ((example.Example) (ex)).getString());
+        org.junit.Assert.assertEquals("abcd", s);
+    }
+
+    @org.junit.Test(timeout = 10000)
+    public void test1litString7() throws java.lang.Exception {
+        example.example.Example ex = new example.example.Example();
         java.lang.String s = "\n";
         org.junit.Assert.assertEquals("\n", s);
         char o_test1litString7__4 = ex.charAt(s, ((s.length()) - 1));
@@ -25,7 +37,7 @@ public class TestSuiteDuplicationExample {
     @org.junit.Test(timeout = 10000)
     public void test1litString6_failAssert0() throws java.lang.Exception {
         try {
-            example.Example ex = new example.Example();
+            example.example.Example ex = new example.example.Example();
             java.lang.String s = "";
             ex.charAt(s, ((s.length()) - 1));
             org.junit.Assert.fail("test1litString6 should have thrown StringIndexOutOfBoundsException");

@@ -2,5 +2,328 @@
   "nbMutantKilledOriginally": 2,
   "name": "example.TestSuiteDuplicationExample",
   "nbOriginalTestCases": 2,
-  "testCases": []
+  "testCases": [
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    },
+    {
+      "name": "test2",
+      "nbAssertionAdded": 5,
+      "nbInputAdded": 0,
+      "nbMutantKilled": 3,
+      "mutantsKilled": [
+        {
+          "ID": "\"A\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "\"\"",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        },
+        {
+          "ID": "null",
+          "lineNumber": 23,
+          "locationMethod": "getString"
+        }
+      ]
+    }
+  ]
 }
