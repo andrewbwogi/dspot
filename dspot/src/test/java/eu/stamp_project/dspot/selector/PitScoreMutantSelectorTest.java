@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
  * benjamin.danglot@inria.fr
  * on 1/9/17
  */
-public class PitScoreMutantSelectorTest extends AbstractSelectorTest2 {
+public class PitScoreMutantSelectorTest {
 
       /*
             Test the PitMutantScoreSelector:
@@ -41,41 +41,120 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest2 {
 
     private static final char DECIMAL_SEPARATOR = (((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator());
 
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        Utils.reset(); // TODO somewhere, there is some states that is why we need to reset here.
-        super.setUp();
-        Utils.getInputConfiguration().setDescartesMode(false);
-        DSpotPOMCreator.createNewPom();
+    private DuplicationDelegator duplicationDelegator = new DuplicationDelegator();
+
+    private AmplificationDelegator amplificationDelegator = new AmplificationDelegator();
+
+    private class DuplicationDelegator extends AbstractSelectorTest2 {
+
+        @Override
+        protected TestSelector getTestSelector() {
+            return new PitMutantScoreSelector();
+        }
+
+        @Override
+        protected String getPathToReportFileDuplication() {
+            return "_mutants_report.txt";
+        }
+
+        @Override
+        protected String getContentReportFileDuplication() {
+            return AmplificationHelper.LINE_SEPARATOR +
+                    "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
+                    "PitMutantScoreSelector: " + AmplificationHelper.LINE_SEPARATOR +
+                    "The original test suite kills 2 mutants" + AmplificationHelper.LINE_SEPARATOR +
+                    "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
+                    "it kills 3 more mutants";
+        }
     }
 
-    @Override
-    protected TestSelector getTestSelector() {
-        return new PitMutantScoreSelector();
+    private class AmplificationDelegator extends OrigAbstractTest {
+        @Override
+        @Before
+        public void setUp() throws Exception {
+            Utils.reset(); // TODO somewhere, there is some states that is why we need to reset here.
+            super.setUp();
+            Utils.getInputConfiguration().setDescartesMode(false);
+            DSpotPOMCreator.createNewPom();
+        }
+
+        @Override
+        protected TestSelector getTestSelector() {
+            return new PitMutantScoreSelector();
+        }
+
+        @Override
+        protected CtMethod<?> getAmplifiedTest() {
+            final CtMethod<?> clone = getTest().clone();
+            Utils.replaceGivenLiteralByNewValue(clone, 4);
+            return clone;
+        }
+
+        @Override
+        protected String getPathToReportFile() {
+            return "target/trash/example.TestSuiteDuplicationExample_mutants_report.txt";
+        }
+
+        @Override
+        protected String getContentReportFile() {
+            return AmplificationHelper.LINE_SEPARATOR +
+                    "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
+                    "PitMutantScoreSelector: " + AmplificationHelper.LINE_SEPARATOR +
+                    "The original test suite kills 15 mutants" + AmplificationHelper.LINE_SEPARATOR +
+                    "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
+                    "it kills 1 more mutants";
+        }
+
+        @Override
+        protected Class<?> getClassMinimizer() {
+            return PitMutantMinimizer.class;
+        }
     }
 
-    @Override
-    protected CtMethod<?> getAmplifiedTest() {
-        final CtMethod<?> clone = getTest().clone();
-        Utils.replaceGivenLiteralByNewValue(clone, 4);
-        return clone;
+   @Test
+    public void testSelector() throws Exception {
+        amplificationDelegator.setUp();
+        amplificationDelegator.testSelector();
     }
 
-    @Override
-    protected String getPathToReportFile() {
-        return "target/trash/example.TestSuiteExample_mutants_report.txt";
+    /*@Test
+    public void testSelector() throws Exception {
+        amplificationDelegator.setUp();
+        amplificationDelegator.testSelector();
+    }*/
+/*
+
+    @Test
+    public void testRemoveOverlappingTests() throws Exception {
+        duplicationDelegator.setUp();
+        duplicationDelegator.testRemoveOverlappingTestsWithPitMutantScoreSelector();
+    }*/
+/*
+    @Test
+    public void testRemoveOverlappingTestsWithPitMutantScoreSelector() throws Exception {
+        try {
+            FileUtils.deleteDirectory(new File("target/trash"));
+        } catch (Exception ignored) {
+            //ignored
+        }
+        RandomHelper.setSeedRandom(23L);
+        InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
+        DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), new PitMutantScoreSelector());
+        dspot.amplifyTestClass("example.TestSuiteDuplicationExample");
+        String path = InputConfiguration.get().getOutputDirectory() + System.getProperty("file.separator")
+                + "example.TestSuiteDuplicationExample" + "_mutants_report.txt";
+        try (BufferedReader buffer = new BufferedReader(new FileReader(path))) {
+            assertEquals(expectedReport, buffer.lines().collect(Collectors.joining(nl)));
+        }
     }
 
-    @Override
-    protected String getContentReportFile() {
-        return AmplificationHelper.LINE_SEPARATOR +
-                "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
-                "PitMutantScoreSelector: " + AmplificationHelper.LINE_SEPARATOR +
-                "The original test suite kills 15 mutants" + AmplificationHelper.LINE_SEPARATOR +
-                "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
-                "it kills 1 more mutants";
-    }
+
+* /
+
+
+
+
+    /*
 
     @Override
     protected String getPathToReportFileDuplication() {
@@ -92,12 +171,6 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest2 {
                 "it kills 3 more mutants";
     }
 
-    @Override
-    protected Class<?> getClassMinimizer() {
-        return PitMutantMinimizer.class;
-    }
-
-    /*
     @Test
     public void testRemoveOverlappingTestsWithPitMutantScoreSelector() throws Exception {
         try {
@@ -115,11 +188,11 @@ public class PitScoreMutantSelectorTest extends AbstractSelectorTest2 {
             assertEquals(expectedReport, buffer.lines().collect(Collectors.joining(nl)));
         }
     }*/
-
+/*
     private static final String expectedReport = AmplificationHelper.LINE_SEPARATOR +
             "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
             "PitMutantScoreSelector: " + AmplificationHelper.LINE_SEPARATOR +
             "The original test suite kills 2 mutants" + AmplificationHelper.LINE_SEPARATOR +
             "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
-            "it kills 3 more mutants";
+            "it kills 3 more mutants";*/
 }

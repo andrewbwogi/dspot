@@ -44,7 +44,7 @@ public class JacocoCoverageSelectorTest {
 
 		@Override
 		protected String getPathToReportFileDuplication() {
-			return "target/trash/example.TestSuiteDuplicationExample_jacoco_instr_coverage_report.txt";
+			return "_jacoco_instr_coverage_report.txt";
 		}
 
 		@Override

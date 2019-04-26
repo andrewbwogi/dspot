@@ -36,6 +36,8 @@ public abstract class AbstractSelectorTest2 {
         return "src/test/resources/regression/test-projects_0/test-projects.properties";
     }
 
+    public static final String nl = System.getProperty("line.separator");
+
     protected abstract TestSelector getTestSelector();
 
     protected CtMethod<?> getTest() {
@@ -46,58 +48,39 @@ public abstract class AbstractSelectorTest2 {
         return Utils.findClass("example.TestSuiteExample");
     }
 
-    protected abstract CtMethod<?> getAmplifiedTest();
-
-    protected abstract String getPathToReportFile();
-
-    protected abstract String getContentReportFile();
-
     protected abstract String getPathToReportFileDuplication();
 
     protected abstract String getContentReportFileDuplication();
 
     protected TestSelector testSelectorUnderTest;
 
-    protected abstract Class<?> getClassMinimizer();
+    String path;
 
     @Before
     public void setUp() throws Exception {
-        final String configurationPath = getPathToProperties();
+        try {
+            FileUtils.deleteDirectory(new File("target/trash"));
+        } catch (Exception ignored) {
+            //ignored
+        }
+
+        RandomHelper.setSeedRandom(23L);
+        InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");
+
+        path = InputConfiguration.get().getOutputDirectory() + System.getProperty("file.separator")
+                + "example.TestSuiteDuplicationExample" + getPathToReportFileDuplication();
+        /*final String configurationPath = getPathToProperties();
         Utils.init(configurationPath);
         RandomHelper.setSeedRandom(72L);
         ValueCreator.count = 0;
         this.testSelectorUnderTest = this.getTestSelector();
-        this.testSelectorUnderTest.init(Utils.getInputConfiguration());
+        this.testSelectorUnderTest.init(Utils.getInputConfiguration());*/
+
+
     }
 
+
     /*@Test
-    public void testSelector() throws Exception {
-        this.testSelectorUnderTest.selectToKeep(
-                this.testSelectorUnderTest.selectToAmplify(
-                        getTestClass(), Collections.singletonList(getTest())
-                )
-        );
-        assertTrue(this.testSelectorUnderTest.getAmplifiedTestCases().isEmpty());
-
-        this.testSelectorUnderTest.selectToKeep(
-                this.testSelectorUnderTest.selectToAmplify(
-                        getTestClass(), Collections.singletonList(getAmplifiedTest())
-                )
-        );
-        assertFalse(this.testSelectorUnderTest.getAmplifiedTestCases().isEmpty());
-
-        this.testSelectorUnderTest.report();
-        try (BufferedReader buffer = new BufferedReader(new FileReader(getPathToReportFile()))) {
-            assertEquals(getContentReportFile(),
-                    buffer.lines()
-                            .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        assertTrue(this.testSelectorUnderTest.getMinimizer().getClass() == getClassMinimizer());
-    }*/
-
-    @Test
     public void testRemoveOverlappingTestsWithPitMutantScoreSelector() throws Exception {
         /*try {
             FileUtils.deleteDirectory(new File("target/trash"));
@@ -105,8 +88,8 @@ public abstract class AbstractSelectorTest2 {
             //ignored
         }*/
 
-
-        DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), new PitMutantScoreSelector());
+/*
+        DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), getTestSelector());
         dspot.amplifyTestClass("example.TestSuiteDuplicationExample");
 
         try (BufferedReader buffer = new BufferedReader(new FileReader(getPathToReportFileDuplication()))) {
@@ -116,5 +99,40 @@ public abstract class AbstractSelectorTest2 {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }*/
+
+    @Test
+    public void testRemoveOverlappingTestsWithPitMutantScoreSelector() throws Exception {
+        /*try {
+            FileUtils.deleteDirectory(new File("target/trash"));
+        } catch (Exception ignored) {
+            //ignored
+        }
+        RandomHelper.setSeedRandom(23L);
+        InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");*/
+        DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), new PitMutantScoreSelector());
+        dspot.amplifyTestClass("example.TestSuiteDuplicationExample");
+        /*String path = InputConfiguration.get().getOutputDirectory() + System.getProperty("file.separator")
+                + "example.TestSuiteDuplicationExample" + "_mutants_report.txt";*/
+
+        /*try (BufferedReader buffer = new BufferedReader(new FileReader(path))) {
+            assertEquals(expectedReport, buffer.lines().collect(Collectors.joining(nl)));
+        }*/
+
+        try (BufferedReader buffer = new BufferedReader(new FileReader(path))) {
+            assertEquals(getContentReportFileDuplication(),
+                    buffer.lines()
+                            .collect(Collectors.joining(AmplificationHelper.LINE_SEPARATOR)));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
+    private static final String expectedReport = AmplificationHelper.LINE_SEPARATOR +
+            "======= REPORT =======" + AmplificationHelper.LINE_SEPARATOR +
+            "PitMutantScoreSelector: " + AmplificationHelper.LINE_SEPARATOR +
+            "The original test suite kills 2 mutants" + AmplificationHelper.LINE_SEPARATOR +
+            "The amplification results with 1 new tests" + AmplificationHelper.LINE_SEPARATOR +
+            "it kills 3 more mutants";
+
 }
