@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 16/03/18
  */
-public abstract class AbstractSelectorTest2 {
+public abstract class AbstractSelectorRemoveDuplicationTest {
 
     protected String getPathToProperties() {
         return "src/test/resources/regression/test-projects_0/test-projects.properties";

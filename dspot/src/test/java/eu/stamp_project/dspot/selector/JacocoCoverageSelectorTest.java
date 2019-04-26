@@ -7,7 +7,7 @@ import java.text.DecimalFormat;
  * benjamin.danglot@inria.fr
  * on 25/07/17
  */
-public class JacocoCoverageSelectorTest extends AbstractSelectorTest2{
+public class JacocoCoverageSelectorTest extends AbstractSelectorRemoveDuplicationTest {
 
 	public static final String nl = System.getProperty("line.separator");
 
