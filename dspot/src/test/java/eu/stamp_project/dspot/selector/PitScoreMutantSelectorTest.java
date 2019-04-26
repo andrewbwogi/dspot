@@ -92,7 +92,7 @@ public class PitScoreMutantSelectorTest {
 
         @Override
         protected String getPathToReportFile() {
-            return "target/trash/example.TestSuiteDuplicationExample_mutants_report.txt";
+            return "target/trash/example.TestSuiteExample_mutants_report.txt";
         }
 
         @Override
@@ -111,7 +111,7 @@ public class PitScoreMutantSelectorTest {
         }
     }
 
-   @Test
+    @Test
     public void testSelector() throws Exception {
         amplificationDelegator.setUp();
         amplificationDelegator.testSelector();
@@ -122,13 +122,13 @@ public class PitScoreMutantSelectorTest {
         amplificationDelegator.setUp();
         amplificationDelegator.testSelector();
     }*/
-/*
+
 
     @Test
     public void testRemoveOverlappingTests() throws Exception {
         duplicationDelegator.setUp();
         duplicationDelegator.testRemoveOverlappingTestsWithPitMutantScoreSelector();
-    }*/
+    }
 /*
     @Test
     public void testRemoveOverlappingTestsWithPitMutantScoreSelector() throws Exception {
