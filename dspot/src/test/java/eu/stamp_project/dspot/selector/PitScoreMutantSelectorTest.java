@@ -4,7 +4,6 @@ import eu.stamp_project.Utils;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.minimization.PitMutantMinimizer;
-import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 
@@ -34,7 +33,6 @@ public class PitScoreMutantSelectorTest {
 
         @Override
         protected String getPathToReportFileDuplication() {
-            //return "_mutants_report.txt";
             return "target/trash/example.TestSuiteDuplicationExample_mutants_report.txt";
         }
 
@@ -52,7 +50,6 @@ public class PitScoreMutantSelectorTest {
     private class AmplificationDelegator extends AbstractSelectorTest {
 
         @Override
-        @Before
         public void setUp() throws Exception {
             Utils.reset(); // TODO somewhere, there is some states that is why we need to reset here.
             super.setUp();

@@ -36,7 +36,6 @@ public abstract class AbstractSelectorRemoveDuplicationTest {
 
     protected String getPathToProperties() {
         return "src/test/resources/regression/test-projects_2/test-projects.properties";
-        //return "src/test/resources/test-projects/test-projects.properties";
     }
 
     protected abstract TestSelector getTestSelector();
@@ -47,41 +46,18 @@ public abstract class AbstractSelectorRemoveDuplicationTest {
 
     protected TestSelector testSelectorUnderTest;
 
-    String path;
-
     @Before
     public void setUp() throws Exception {
         Utils.reset();
         final String configurationPath = getPathToProperties();
         Utils.init(configurationPath);
-        //RandomHelper.setSeedRandom(72L); // todo why this?
-        //ValueCreator.count = 0; // todo why this?
-
         this.testSelectorUnderTest = this.getTestSelector();
-        //DSpotPOMCreator.createNewPom();
-
-/*
-        try {
-            FileUtils.deleteDirectory(new File("target/trash"));
-        } catch (Exception ignored) {
-            //ignored
-        }
-        RandomHelper.setSeedRandom(23L);
-        InputConfiguration.initialize("src/test/resources/test-projects/test-projects.properties");*/
-
-        path = InputConfiguration.get().getOutputDirectory() + System.getProperty("file.separator")
-                + "example.TestSuiteDuplicationExample" + getPathToReportFileDuplication();
     }
 
     @Test
     public void testRemoveOverlappingTests() throws Exception {
-        System.out.println("oooooooooooooooooooooooooooooooo");
-        System.out.println(InputConfiguration.get().getOutputDirectory());
-        System.out.println(System.getProperty("user.dir"));
-        System.out.println(Paths.get("").toAbsolutePath().toString());
         DSpot dspot = new DSpot(1, Arrays.asList(new StringLiteralAmplifier()), testSelectorUnderTest);
         dspot.amplifyTestClass("example.TestSuiteDuplicationExample");
-        //try (BufferedReader buffer = new BufferedReader(new FileReader(path))) {
         try (BufferedReader buffer = new BufferedReader(new FileReader(getPathToReportFileDuplication()))) {
             assertEquals(getContentReportFileDuplication(),
                     buffer.lines()

@@ -20,7 +20,6 @@ public class JacocoCoverageSelectorTest extends AbstractSelectorRemoveDuplicatio
 
 	@Override
 	protected String getPathToReportFileDuplication() {
-		//return "_jacoco_instr_coverage_report.txt";
 		return "target/trash/example.TestSuiteDuplicationExample_jacoco_instr_coverage_report.txt";
 	}
 
