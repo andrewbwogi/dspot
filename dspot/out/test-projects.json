@@ -1,12 +1,8 @@
 {
   "classTimes": [
     {
-      "fullQualifiedName": "example.TestSuiteExample",
-      "timeInMs": 17903
-    },
-    {
       "fullQualifiedName": "example.TestSuiteDuplicationExample",
-      "timeInMs": 35472
+      "timeInMs": 40501
     }
   ],
   "projectName": "test-projects"

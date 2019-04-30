@@ -2,10 +2,10 @@
   "name": "example.TestSuiteDuplicationExample",
   "nbOriginalTestCases": 2,
   "initialInstructionCovered": 23,
-  "initialInstructionTotal": 34,
-  "percentageinitialInstructionCovered": 67.64705882352942,
-  "amplifiedInstructionCovered": 27,
-  "amplifiedInstructionTotal": 34,
-  "percentageamplifiedInstructionCovered": 79.41176470588235,
+  "initialInstructionTotal": 38,
+  "percentageinitialInstructionCovered": 60.526315789473685,
+  "amplifiedInstructionCovered": 31,
+  "amplifiedInstructionTotal": 38,
+  "percentageamplifiedInstructionCovered": 81.57894736842105,
   "testCases": []
 }
