@@ -34,7 +34,8 @@ public class PitScoreMutantSelectorTest {
 
         @Override
         protected String getPathToReportFileDuplication() {
-            return "_mutants_report.txt";
+            //return "_mutants_report.txt";
+            return "target/trash/example.TestSuiteDuplicationExample_mutants_report.txt";
         }
 
         @Override
@@ -101,6 +102,6 @@ public class PitScoreMutantSelectorTest {
     @Test
     public void testRemoveOverlappingTests() throws Exception {
         duplicationDelegator.setUp();
-        duplicationDelegator.testRemoveOverlappingTestsWithPitMutantScoreSelector();
+        duplicationDelegator.testRemoveOverlappingTests();
     }
 }

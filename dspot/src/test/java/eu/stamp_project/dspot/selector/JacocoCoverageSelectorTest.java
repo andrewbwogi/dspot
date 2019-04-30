@@ -20,16 +20,17 @@ public class JacocoCoverageSelectorTest extends AbstractSelectorRemoveDuplicatio
 
 	@Override
 	protected String getPathToReportFileDuplication() {
-		return "_jacoco_instr_coverage_report.txt";
+		//return "_jacoco_instr_coverage_report.txt";
+		return "target/trash/example.TestSuiteDuplicationExample_jacoco_instr_coverage_report.txt";
 	}
 
 	@Override
 	protected String getContentReportFileDuplication() {
 		return nl + "======= REPORT =======" + nl +
-				"Initial instruction coverage: 23 / 34" + nl +
-				"67" + DECIMAL_SEPARATOR + "65%" + nl +
+				"Initial instruction coverage: 23 / 38" + nl +
+				"60" + DECIMAL_SEPARATOR + "53%" + nl +
 				"Amplification results with 3 amplified tests." + nl +
-				"Amplified instruction coverage: 27 / 34" + nl +
-				"79" + DECIMAL_SEPARATOR + "41%";
+				"Amplified instruction coverage: 31 / 38" + nl +
+				"81" + DECIMAL_SEPARATOR + "58%";
 	}
 }
