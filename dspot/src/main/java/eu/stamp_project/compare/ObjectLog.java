@@ -56,6 +56,8 @@ public class ObjectLog {
             getSingleton().addObservation(id, "null", null);
             return;
         }*/
+        // todo debug
+        System.out.println("zzzzzzzzzzzzzzz logging");
         getSingleton()._log(
                 objectToObserve,
                 objectToObserve,
@@ -82,6 +84,7 @@ public class ObjectLog {
                 addObservation(id, observedObjectAsString, null);
             } else if (isSerializable(objectToObserve) &&
                     (primitive || primitiveArray || primitiveCollectionOrMap)) {
+                System.out.println("in isSerializable");
                 addObservation(id, observedObjectAsString, objectToObserve);
             } else if (Utils.isCollection(objectToObserve)) {
                 addObservation(id, observedObjectAsString + ".isEmpty()", ((Collection) objectToObserve).isEmpty());
@@ -122,6 +125,7 @@ public class ObjectLog {
             if (!observations.containsKey(id)) {
                 observations.put(id, new Observation());
             }
+            System.out.println(((int[]) actualValue)[1]);
             observations.get(id).add(observedObjectAsString, actualValue);
         }
     }

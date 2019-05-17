@@ -104,10 +104,11 @@ public class AssertBuilder {
 
                         // Array
                     } else if (TypeUtils.isArray(value)) {//TODO must be implemented
+                        System.out.println("in array");
                         //invocations.add(buildAssertForArray(factory, testMethod, observationKey, value));
 
                         invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_ARRAY_EQUALS,
-                                Arrays.asList(printPrimitiveString(factory, value),
+                                Arrays.asList(printPrimitiveArray(factory, value),
                                         variableRead)));
 
                         // Map
@@ -166,6 +167,7 @@ public class AssertBuilder {
         }
         // todo debug
         for(CtStatement s : invocations){
+            System.out.println("iiii invocations");
             System.out.println(s);
         }
         return invocations;
@@ -256,6 +258,29 @@ public class AssertBuilder {
                         )
                 ).collect(Collectors.toList());
     }
+
+    private static CtExpression printPrimitiveArray(Factory factory, Object value) {
+        if (value instanceof String[] ||
+                value instanceof Short[] ||
+                value.getClass() == short.class ||
+                value instanceof Double[] ||
+                value.getClass() == double.class ||
+                value instanceof Float[] ||
+                value.getClass() == float.class ||
+                value instanceof Long[] ||
+                value.getClass() == long.class ||
+                value instanceof Character[] ||
+                value.getClass() == char.class ||
+                value instanceof Byte[] ||
+                value.getClass() == byte.class ||
+                value instanceof Integer[] ||
+                value.getClass() == int.class) {
+            return getFieldReadOrLiteral(factory, value);
+        } else {
+            return factory.createCodeSnippetExpression(value.toString());
+        }
+    }
+
 
     private static CtExpression printPrimitiveString(Factory factory, Object value) {
         if (value instanceof String ||

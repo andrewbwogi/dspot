@@ -56,6 +56,9 @@ public class AssertGeneratorHelper {
         // todo debug
         System.out.println();
         System.out.println("--------------------------------------------- in createTestWithLog");
+        System.out.println("CtMethod test");
+        System.out.println(test);
+        System.out.println("ctVariableReads");
         for(CtLocalVariable v : ctVariableReads){
             System.out.println(v);
         }
@@ -127,6 +130,7 @@ public class AssertGeneratorHelper {
             if (statement instanceof CtNamedElement) {
                 // todo debug
                 System.out.println("in named element");
+                System.out.println(((CtNamedElement) statement).getSimpleName());
                 if (((CtNamedElement) statement).getSimpleName()
                         .startsWith("__DSPOT_")) {
                     return false;
@@ -134,6 +138,9 @@ public class AssertGeneratorHelper {
             }
 
             final CtTypeReference type = ((CtTypedElement) statement).getType();
+            // todo debug
+            System.out.println(filter);
+            System.out.println(type.getQualifiedName());
             if (type.getQualifiedName().startsWith(filter)) {
                 // todo debug
                 System.out.println("in filter");

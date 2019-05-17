@@ -25,10 +25,7 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -134,9 +131,29 @@ public class MethodsAssertGenerator {
         // add assertions with values retrieved from logs in tests
         Map<String, Observation> observations = ObjectLog.getObservations();
         LOGGER.info("Generating assertions...");
+        //todo debug
+        //printMap(observations);
+        System.out.println("ppppppppppppppppppp observations");
+        for(String s : observations.keySet()){
+            System.out.println("outer observation");
+            System.out.println(s);
+            for(String s2 : observations.get(s).getObservationValues().keySet()){
+                System.out.println("inner observation: " + s2);
+            //System.out.println(((int[]) observations.get(s).getObservationValues().get(s2))[1]);
+            }
+        }
+        //System.out.println(((int[]) observations.get())[1]);
         return testCases.stream()
                 .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
                 .collect(Collectors.toList());
+    }
+    public static void printMap(Map mp) {
+        Iterator it = mp.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            System.out.println(pair.getKey() + " = " + pair.getValue());
+            it.remove(); // avoids a ConcurrentModificationException
+        }
     }
 
     /**

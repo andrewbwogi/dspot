@@ -102,6 +102,8 @@ public abstract class JUnitSupport extends AbstractTestFramework {
         executableReference.setSimpleName(assertion.toStringAccordingToClass(JUnitSupport.class));
         executableReference.setDeclaringType(factory.Type().createReference(this.qualifiedNameOfAssertClass));
         invocation.setExecutable(executableReference);
+        for(CtExpression e : arguments)
+            System.out.println(e);
         invocation.setArguments(arguments); // TODO
         invocation.setType(factory.Type().voidPrimitiveType());
         invocation.setTarget(factory.createTypeAccess(factory.Type().createReference(this.qualifiedNameOfAssertClass)));
