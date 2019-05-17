@@ -107,12 +107,12 @@ public class CustomPattern {
         // from getSpoonModelOf(String pathToSources, String pathToDependencies) in DSportCompiler
         Launcher launcher = new Launcher();
         launcher.getEnvironment().setNoClasspath(true);
-        launcher.addInputResource("/home/andrew/Skrivbord/stamp/issue-535/pattern-test/");
+        launcher.addInputResource("/home/andrew/Skrivbord/stamp/issue-667/test-pattern/");
         launcher.buildModel();
         Factory factory = launcher.getFactory();
         List<CtType<?>> classes = factory.Type().getAll();
 
-        List<CtElement> elements = classes.get(0).getMethodsByName("testmethod1").get(0).getElements(new TypeFilter<>(CtElement.class));
+        List<CtElement> elements = classes.get(0).getMethodsByName("testmethod2").get(0).getElements(new TypeFilter<>(CtElement.class));
 
         for (CtElement v : elements) {
             System.out.println("--- new element --- : " + v.getClass().getSimpleName());
