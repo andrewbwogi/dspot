@@ -24,6 +24,7 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.Query;
 import spoon.reflect.visitor.filter.TypeFilter;
+import spoon.support.reflect.reference.CtArrayTypeReferenceImpl;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -192,8 +193,12 @@ public class MethodsAssertGenerator {
             }
             int line = Integer.parseInt(id.split("__")[1]);
             CtStatement lastStmt = null;
+
+            // for every assertStatement, prepare and put the assertStatement in the test method
             for (CtStatement assertStatement : assertStatements) {
                 DSpotUtils.addComment(assertStatement, "AssertGenerator add assertion", CtComment.CommentType.INLINE);
+                System.out.println("cccccc assertStatement: " + assertStatement);
+                System.out.println("end assertStatement");
                 try {
                     CtStatement statementToBeAsserted = statements.get(line);
                     if (lastStmt == null) {
@@ -202,9 +207,18 @@ public class MethodsAssertGenerator {
                     if (statementToBeAsserted instanceof CtBlock) {
                         break;
                     }
+                    System.out.println("bbbbbb: " + statementToBeAsserted);
+                    System.out.println("end");
+                    // if statement to be asserted is an array, create a local variable
+                    System.out.println("content of invocation: " + ((CtInvocation) assertStatement).getArguments().get(0).getClass());
+                    System.out.println("class of statementToBeAsserted: " + statementToBeAsserted);
+                    if (((CtInvocation) assertStatement).getArguments().get(1) instanceof CtArrayTypeReferenceImpl &&
+                            statementToBeAsserted.getParent() instanceof CtBlock) {
+                        System.out.println("aaaaaaaaaaaaaaaa we have an array");
 
+                    }
                     // if statement to be asserted is a method or constructor call, create a local variable
-                    if (statementToBeAsserted instanceof CtInvocation &&
+                    else if (statementToBeAsserted instanceof CtInvocation &&
                             !AssertGeneratorHelper.isVoidReturn((CtInvocation) statementToBeAsserted) &&
                             statementToBeAsserted.getParent() instanceof CtBlock) {
                         // todo debug

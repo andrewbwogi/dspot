@@ -118,4 +118,14 @@ public class TempTest {
             }
         }
     }
+
+    @org.junit.Test(timeout = 10000)
+    public void arr() {
+        int[] values = {0, 0, 2, 3};
+        //int[] values2 = {0, 1, 2, 3};
+        int[] values2 = new int[4];
+        values2[2] = 5;
+        org.junit.Assert.assertEquals(0, values[0]);
+        org.junit.Assert.assertArrayEquals(values, values2);
+    }
     }

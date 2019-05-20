@@ -15,6 +15,7 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtFieldReference;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -260,7 +261,10 @@ public class AssertBuilder {
     }
 
     private static CtExpression printPrimitiveArray(Factory factory, Object value) {
-        if (value instanceof String[] ||
+
+        getStuffFromArray(value);
+
+        /*if (value instanceof String[] ||
                 value instanceof Short[] ||
                 value.getClass() == short.class ||
                 value instanceof Double[] ||
@@ -278,6 +282,22 @@ public class AssertBuilder {
             return getFieldReadOrLiteral(factory, value);
         } else {
             return factory.createCodeSnippetExpression(value.toString());
+        }*/
+        return getFieldReadOrLiteral(factory, value);
+    }
+
+    private static void getStuffFromArray(Object obj) {
+        // assuming we already know obj.getClass().isArray() == true
+        Class<?> componentType = obj.getClass().getComponentType();
+        int size = Array.getLength(obj);
+        for (int i = 0; i < size; i++) {
+            Object value = Array.get(obj, i);
+            if (value.getClass().isArray()) {
+                getStuffFromArray(value);
+            } else {
+                // not an array; process it
+                System.out.println(value);
+            }
         }
     }
 
