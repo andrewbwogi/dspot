@@ -5,6 +5,7 @@ import spoon.pattern.Match;
 import spoon.pattern.PatternBuilder;
 import spoon.pattern.PatternBuilderHelper;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.factory.CoreFactory;
 import spoon.reflect.factory.Factory;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class PatternTest {
         CustomPattern p = new CustomPattern();
         // p.patternTest();
         p.traverse();
+
         int i = 1;
 
     }

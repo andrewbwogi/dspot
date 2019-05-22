@@ -5,12 +5,20 @@ import spoon.pattern.Match;
 import spoon.pattern.PatternBuilder;
 import spoon.pattern.PatternBuilderHelper;
 import spoon.reflect.CtModel;
-import spoon.reflect.code.CtLocalVariable;
+import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
+import spoon.reflect.factory.CodeFactory;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.factory.TypeFactory;
+import spoon.reflect.reference.CtArrayTypeReference;
+import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
+import spoon.support.reflect.code.CtLiteralImpl;
+import spoon.support.reflect.code.CtNewArrayImpl;
+import spoon.support.reflect.reference.CtArrayTypeReferenceImpl;
+import spoon.support.reflect.reference.CtTypeReferenceImpl;
 
 import java.util.List;
 
@@ -103,6 +111,8 @@ public class CustomPattern {
     }
 
     void traverse(){
+        TypeFactory typeFactory = new TypeFactory();
+
 
         // from getSpoonModelOf(String pathToSources, String pathToDependencies) in DSportCompiler
         Launcher launcher = new Launcher();
@@ -112,11 +122,98 @@ public class CustomPattern {
         Factory factory = launcher.getFactory();
         List<CtType<?>> classes = factory.Type().getAll();
 
-        List<CtElement> elements = classes.get(0).getMethodsByName("testmethod2").get(0).getElements(new TypeFilter<>(CtElement.class));
+        List<CtElement> elements = classes.get(0).getMethodsByName("testmethod5").get(0).getElements(new TypeFilter<>(CtElement.class));
 
         for (CtElement v : elements) {
             System.out.println("--- new element --- : " + v.getClass().getSimpleName());
             System.out.println(v.toString());
         }
+
+        System.out.println("************** after traverse *****************");
+        CtComment com = factory.createComment();
+        com.setContent("test");
+        System.out.println(com);
+        final CtCodeSnippetStatement statementInConstructor = factory.createCodeSnippetStatement("this.dates = dates");
+        System.out.println(statementInConstructor);
+
+
+
+
+
+        //CtNewArray<CtArrayTypeReferenceImpl<CtTypeReferenceImpl<CtLiteralImpl<Integer>>>> ar2 = factory.createNewArray();
+
+
+        //CtNewArray<CtTypeReference<Boolean>> ar = factory.createNewArray();
+
+        //ar.addDimensionExpression(lit);
+        //ar.addElement(lit);
+
+
+
+
+        CtNewArray<CtArrayTypeReference<CtTypeReference<CtLiteral<Integer>>>> ar = factory.createNewArray();
+
+        CodeFactory codeFactory = new CodeFactory(factory);
+
+
+
+
+
+        CtTypeReference<Integer> ty = typeFactory.integerPrimitiveType();
+        CtTypeReference<Integer> ty2 = typeFactory.createArrayReference("test");
+        CtArrayTypeReference<CtTypeReference<CtLiteral<Integer>>> atr = factory.createArrayTypeReference();
+        CtLiteralImpl lit = new CtLiteralImpl<Integer>();
+        lit.setValue(1);
+        // CtNewArray<CtArrayTypeReference<CtTypeReference<CtLiteral<Integer>>>> ar3 = factory.createNewArray();
+        CtNewArray<Integer> ar3 = factory.createNewArray();
+        //CtNewArray<CtTypeReference<CtLiteral<Integer>>> ar3 = factory.createNewArray();
+
+        // must we setParent?
+        ar3.setType(ty2);
+        ar3.addDimensionExpression(lit);
+        ar3.addElement(lit.clone());
+
+        System.out.println("ar3: " + ar3);
+
+        // lets wait with new, lets just create an array expression, and look inside its contents
+
+
+
+        System.out.println(lit);
+        System.out.println("simple name: " + ar.getClass().getSimpleName());
+        new CtLiteralImpl<Integer>();
+
+        for (CtElement v : ar3.getElements()) {
+            System.out.println("--- new element --- : " + v.getClass().getSimpleName());
+            System.out.println(v.toString());
+        }
+
+
+
+        // beginning from zero
+
+        // CtNewArrayImpl: new int[]{ 1 }
+        CtNewArray<CtArrayTypeReference<CtTypeReference<Integer>>> newArray = new CtNewArrayImpl<>();
+
+        // CtArrayTypeReferenceImpl: int[]
+        CtArrayTypeReference<CtTypeReference<Integer>> arrayTypeReference = new CtArrayTypeReferenceImpl<>();
+
+        // CtTypeReferenceImpl: int
+        CtTypeReference<Integer> intTypeReference1 = typeFactory.integerPrimitiveType();
+
+        // CtLiteralImpl: 1
+        CtLiteralImpl literal = new CtLiteralImpl<Integer>();
+        literal.setValue(1);
+
+        // CtTypeReferenceImpl: int
+        CtTypeReference<Integer> intTypeReference2 = typeFactory.integerPrimitiveType();
+/*
+        arrayTypeReference.setComponentType(intTypeReference1);
+        newArray.setType(arrayTypeReference);
+        literal.setType(intTypeReference2);
+        newArray.setType(arrayTypeReference);
+        newArray.addDimensionExpression(intTypeReference1);
+        newArray.addElement(literal);
+*/
     }
 }
