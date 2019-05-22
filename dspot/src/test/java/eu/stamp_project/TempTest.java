@@ -1,6 +1,7 @@
 package eu.stamp_project;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,13 +63,21 @@ public class TempTest {
                 .flatMap(Arrays::stream)
                 .collect(Collectors.toList());
 
+        int[] values2 = new int[]{ 0, 1, 2, 3 };
         int[][] array3 = new int[5][5];
+        int[][][] array4 = new int[2][3][4];
         array3[1][1] = 2;
         array3[2][2] = 2;
         array3[3][3] = 2;
         Object[] ob = (Object[]) array3;
         //System.out.println(ob[2]);
-        getStuffFromArray(array3);
+
+
+       // getArrayType(array3);
+
+        System.out.println(getArrayType(array3.clone()));
+        String expr = getExpression(array3);
+        System.out.println(expr);
         //array[1][1] = 2;
 /*
         Integer[][] array2 new Integer[5][5];
@@ -104,21 +113,60 @@ public class TempTest {
     }
 */
 
-    void getStuffFromArray(Object obj) {
+    private Class getArrayType(Object obj) {
+        Class cls = obj.getClass();
+        String clsName = cls.getName();
+        int nrDims = 1 + clsName.lastIndexOf('[');
+        for(int i = 0; i<(nrDims-1); i++){
+            obj = Array.get(obj,0);
+        }
+        return obj.getClass().getComponentType();
+    }
+
+String getExpression(Object obj){
+    StringBuilder sb = new StringBuilder();
+    ArrayList<Integer> al = new ArrayList<>();
+    getStuffFromArray(obj,sb,al);
+    int dimensions = 0;
+    for(int i = 0; sb.charAt(i) == '{'; i++)
+        dimensions = i+1;
+    for(int i = dimensions; i>0; i--){
+        sb.insert(0,"[" + al.get(i-1) + "]");
+    }
+    for(int i = 1; i<sb.length(); i++){
+        if(sb.charAt(i-1) == '}' && sb.charAt(i) == '{')
+            sb.insert(i,",");
+    }
+    for(int i = 0; i<(dimensions-1); i++){
+        obj = Array.get(obj,0);
+    }
+    sb.insert(0,"new " + obj.getClass().getComponentType());
+    return sb.toString();
+}
+
+
+    void getStuffFromArray(Object obj, StringBuilder sb, ArrayList al) {
+        sb.append("{");
         // assuming we already know obj.getClass().isArray() == true
-        Class<?> componentType = obj.getClass().getComponentType();
         int size = Array.getLength(obj);
+        al.add(size);
         for (int i = 0; i < size; i++) {
             Object value = Array.get(obj, i);
             if (value.getClass().isArray()) {
-                getStuffFromArray(value);
+                getStuffFromArray(value, sb, al);
             } else {
                 // not an array; process it
-                System.out.println(value);
+                sb.append(value);
+                if(i+1 < size)
+                    sb.append(",");
             }
         }
+        sb.append("}");
     }
 
+
+
+/*
     @org.junit.Test(timeout = 10000)
     public void arr() {
         int[] values = {0, 0, 2, 3};
@@ -127,5 +175,5 @@ public class TempTest {
         values2[2] = 5;
         org.junit.Assert.assertEquals(0, values[0]);
         org.junit.Assert.assertArrayEquals(values, values2);
-    }
+    }*/
     }

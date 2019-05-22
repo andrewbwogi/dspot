@@ -261,8 +261,9 @@ public class AssertBuilder {
     }
 
     private static CtExpression printPrimitiveArray(Factory factory, Object value) {
-
-        getStuffFromArray(value);
+// todo make sure array is primitive
+        // todo use getarraytype in getExpression?
+        // todo easiser way to get array dimension?
 
         /*if (value instanceof String[] ||
                 value instanceof Short[] ||
@@ -283,22 +284,58 @@ public class AssertBuilder {
         } else {
             return factory.createCodeSnippetExpression(value.toString());
         }*/
-        return getFieldReadOrLiteral(factory, value);
+        return factory.createCodeSnippetExpression(getExpression(value));
     }
 
-    private static void getStuffFromArray(Object obj) {
+    private static String getExpression(Object obj){
+        StringBuilder sb = new StringBuilder();
+        ArrayList<Integer> al = new ArrayList<>();
+        getStuffFromArray(obj,sb,al);
+        int dimensions = 0;
+        for(int i = 0; sb.charAt(i) == '{'; i++)
+            dimensions = i+1;
+        for(int i = dimensions; i>0; i--){
+            sb.insert(0,"[" + al.get(i-1) + "]");
+        }
+        for(int i = 1; i<sb.length(); i++){
+            if(sb.charAt(i-1) == '}' && sb.charAt(i) == '{')
+                sb.insert(i,",");
+        }
+        for(int i = 0; i<(dimensions-1); i++){
+            obj = Array.get(obj,0);
+        }
+        sb.insert(0,"new " + obj.getClass().getComponentType());
+        return sb.toString();
+    }
+
+
+    private static void getStuffFromArray(Object obj, StringBuilder sb, ArrayList al) {
+        sb.append("{");
         // assuming we already know obj.getClass().isArray() == true
-        Class<?> componentType = obj.getClass().getComponentType();
         int size = Array.getLength(obj);
+        al.add(size);
         for (int i = 0; i < size; i++) {
             Object value = Array.get(obj, i);
             if (value.getClass().isArray()) {
-                getStuffFromArray(value);
+                getStuffFromArray(value, sb, al);
             } else {
                 // not an array; process it
-                System.out.println(value);
+                sb.append(value);
+                if(i+1 < size)
+                    sb.append(",");
             }
         }
+        sb.append("}");
+    }
+
+    private static Class getArrayType(Object obj) {
+        Class cls = obj.getClass();
+        String clsName = cls.getName();
+        int nrDims = 1 + clsName.lastIndexOf('[');
+        for(int i = 0; i<(nrDims-1); i++){
+            obj = Array.get(obj,0);
+        }
+        return obj.getClass().getComponentType();
     }
 
 
