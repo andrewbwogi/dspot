@@ -107,10 +107,15 @@ public class AssertBuilder {
                     } else if (TypeUtils.isArray(value)) {//TODO must be implemented
                         System.out.println("in array");
                         //invocations.add(buildAssertForArray(factory, testMethod, observationKey, value));
+                        if(isPrimitiveArray(value)){
+                            CtExpression expectedValue = factory.createCodeSnippetExpression(getExpression(value));
+                            invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_ARRAY_EQUALS,
+                                    Arrays.asList(expectedValue,variableRead)));
+                        }
 
-                        invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_ARRAY_EQUALS,
+                        /*invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_ARRAY_EQUALS,
                                 Arrays.asList(printPrimitiveArray(factory, value),
-                                        variableRead)));
+                                        variableRead)));*/
 
                         // Map
                     } else if (TypeUtils.isPrimitiveMap(value)) {//TODO
@@ -260,31 +265,30 @@ public class AssertBuilder {
                 ).collect(Collectors.toList());
     }
 
-    private static CtExpression printPrimitiveArray(Factory factory, Object value) {
-// todo make sure array is primitive
-        // todo use getarraytype in getExpression?
-        // todo easiser way to get array dimension?
+    private static Boolean isPrimitiveArray(Object value) {
+        Class clazz = getArrayComponentType(value);
+        return clazz == short.class ||
+                clazz == double.class ||
+                clazz == float.class ||
+                clazz == long.class ||
+                clazz == char.class ||
+                clazz == byte.class ||
+                clazz == int.class;
+    }
 
-        /*if (value instanceof String[] ||
-                value instanceof Short[] ||
-                value.getClass() == short.class ||
-                value instanceof Double[] ||
-                value.getClass() == double.class ||
-                value instanceof Float[] ||
-                value.getClass() == float.class ||
-                value instanceof Long[] ||
-                value.getClass() == long.class ||
-                value instanceof Character[] ||
-                value.getClass() == char.class ||
-                value instanceof Byte[] ||
-                value.getClass() == byte.class ||
-                value instanceof Integer[] ||
-                value.getClass() == int.class) {
-            return getFieldReadOrLiteral(factory, value);
+    private static CtExpression printPrimitiveArray(Factory factory, Object value) {
+        Class clazz = getArrayComponentType(value);
+        if (clazz == short.class ||
+                clazz == double.class ||
+                clazz == float.class ||
+                clazz == long.class ||
+                clazz == char.class ||
+                clazz == byte.class ||
+                clazz == int.class) {
+            return factory.createCodeSnippetExpression(getExpression(value));
         } else {
             return factory.createCodeSnippetExpression(value.toString());
-        }*/
-        return factory.createCodeSnippetExpression(getExpression(value));
+        }
     }
 
     private static String getExpression(Object obj){
@@ -301,17 +305,12 @@ public class AssertBuilder {
             if(sb.charAt(i-1) == '}' && sb.charAt(i) == '{')
                 sb.insert(i,",");
         }
-        for(int i = 0; i<(dimensions-1); i++){
-            obj = Array.get(obj,0);
-        }
-        sb.insert(0,"new " + obj.getClass().getComponentType());
+        sb.insert(0,"new " + getArrayComponentType(obj));
         return sb.toString();
     }
 
-
     private static void getStuffFromArray(Object obj, StringBuilder sb, ArrayList al) {
         sb.append("{");
-        // assuming we already know obj.getClass().isArray() == true
         int size = Array.getLength(obj);
         al.add(size);
         for (int i = 0; i < size; i++) {
@@ -319,7 +318,6 @@ public class AssertBuilder {
             if (value.getClass().isArray()) {
                 getStuffFromArray(value, sb, al);
             } else {
-                // not an array; process it
                 sb.append(value);
                 if(i+1 < size)
                     sb.append(",");
@@ -328,16 +326,13 @@ public class AssertBuilder {
         sb.append("}");
     }
 
-    private static Class getArrayType(Object obj) {
-        Class cls = obj.getClass();
-        String clsName = cls.getName();
-        int nrDims = 1 + clsName.lastIndexOf('[');
-        for(int i = 0; i<(nrDims-1); i++){
+    private static Class getArrayComponentType(Object obj) {
+        int dimensions = 1 + obj.getClass().getName().lastIndexOf('[');
+        for(int i = 0; i<(dimensions-1); i++){
             obj = Array.get(obj,0);
         }
         return obj.getClass().getComponentType();
     }
-
 
     private static CtExpression printPrimitiveString(Factory factory, Object value) {
         if (value instanceof String ||
