@@ -15,6 +15,7 @@ import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtFieldReference;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -80,8 +81,12 @@ public class AssertBuilder {
                         } else {
                             invocations.addAll(buildSnippetAssertCollection(factory, testMethod, observationKey, (Collection) value));
                         }
-                    } else if (TypeUtils.isArray(value)) {//TODO must be implemented
-                        //invocations.add(buildAssertForArray(factory, testMethod, observationKey, value));
+                    } else if (TypeUtils.isArray(value)) {
+                        if(isPrimitiveArray(value)){
+                            CtExpression expectedValue = factory.createCodeSnippetExpression(getExpression(value));
+                            invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_ARRAY_EQUALS,
+                                    Arrays.asList(expectedValue,variableRead)));
+                        }
                     } else if (TypeUtils.isPrimitiveMap(value)) {//TODO
                         Map valueCollection = (Map) value;
                         if (valueCollection.isEmpty()) {
@@ -146,22 +151,6 @@ public class AssertBuilder {
             variableRead.addTypeCast(variableRead.getFactory().Type().characterPrimitiveType());
         }
     }
-
-    /*
-    private static CtInvocation<?> buildAssertForArray(Factory factory, String expression, Object array) {
-        String type = array.getClass().getCanonicalName();
-        String arrayLocalVar1 = "array_" + Math.abs(RandomHelper.getRandom().nextInt());
-        String arrayLocalVar2 = "array_" + Math.abs(RandomHelper.getRandom().nextInt());
-
-
-        String forLoop = "\tfor(int ii = 0; ii <" + arrayLocalVar1 + ".length; ii++) {\n\t\t"
-                + JUNIT_ASSERT_CLASS_NAME + ".assertEquals(" + arrayLocalVar1 + "[ii], " + arrayLocalVar2 + "[ii]);\n\t}";
-
-        return factory.createCodeSnippetStatement(type + " " + arrayLocalVar1 + " = " + primitiveArrayToString(array, factory) + ";\n\t"
-                + type + " " + arrayLocalVar2 + " = " + "(" + type + ")" + expression + ";\n"
-                + forLoop);
-    }
-    */
 
     // TODO we need maybe limit assertion on a limited number of elements
     @SuppressWarnings("unchecked")
@@ -301,6 +290,60 @@ public class AssertBuilder {
                                         return false;
                                     }
                                 }));
+    }
+
+    private static Boolean isPrimitiveArray(Object value) {
+        Class clazz = getArrayComponentType(value);
+        return clazz == short.class ||
+                clazz == double.class ||
+                clazz == float.class ||
+                clazz == long.class ||
+                clazz == char.class ||
+                clazz == byte.class ||
+                clazz == int.class;
+    }
+
+    private static String getExpression(Object obj){
+        StringBuilder sb = new StringBuilder();
+        ArrayList<Integer> al = new ArrayList<>();
+        getStuffFromArray(obj,sb,al);
+        int dimensions = 0;
+        for(int i = 0; sb.charAt(i) == '{'; i++)
+            dimensions = i+1;
+        for(int i = dimensions; i>0; i--){
+            sb.insert(0,"[" + al.get(i-1) + "]");
+        }
+        for(int i = 1; i<sb.length(); i++){
+            if(sb.charAt(i-1) == '}' && sb.charAt(i) == '{')
+                sb.insert(i,",");
+        }
+        sb.insert(0,"new " + getArrayComponentType(obj));
+        return sb.toString();
+    }
+
+    private static void getStuffFromArray(Object obj, StringBuilder sb, ArrayList al) {
+        sb.append("{");
+        int size = Array.getLength(obj);
+        al.add(size);
+        for (int i = 0; i < size; i++) {
+            Object value = Array.get(obj, i);
+            if (value.getClass().isArray()) {
+                getStuffFromArray(value, sb, al);
+            } else {
+                sb.append(value);
+                if(i+1 < size)
+                    sb.append(",");
+            }
+        }
+        sb.append("}");
+    }
+
+    private static Class getArrayComponentType(Object obj) {
+        int dimensions = 1 + obj.getClass().getName().lastIndexOf('[');
+        for(int i = 0; i<(dimensions-1); i++){
+            obj = Array.get(obj,0);
+        }
+        return obj.getClass().getComponentType();
     }
 
     private static String primitiveArrayToString(Object array, Factory factory) {
