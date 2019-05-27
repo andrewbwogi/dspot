@@ -86,10 +86,10 @@ public class AssertBuilder {
                             CtExpression expectedValue = factory.createCodeSnippetExpression(getNewArrayExpression(value));
                             List<CtExpression> list;
                             if(getArrayComponentType(value) == float.class){
-                                list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(1.2F));
+                                list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(0.1F));
                             }
                             else if(getArrayComponentType(value) == double.class){
-                                list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(1.2));
+                                list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(0.1));
                             }
                             else {
                                 list = Arrays.asList(expectedValue,variableRead);
