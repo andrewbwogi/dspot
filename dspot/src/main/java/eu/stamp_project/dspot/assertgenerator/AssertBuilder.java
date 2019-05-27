@@ -83,9 +83,19 @@ public class AssertBuilder {
                         }
                     } else if (TypeUtils.isArray(value)) {
                         if(isPrimitiveArray(value)){
-                            CtExpression expectedValue = factory.createCodeSnippetExpression(getExpression(value));
-                            invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_ARRAY_EQUALS,
-                                    Arrays.asList(expectedValue,variableRead)));
+                            CtExpression expectedValue = factory.createCodeSnippetExpression(getNewArrayExpression(value));
+                            List<CtExpression> list;
+                            if(getArrayComponentType(value) == float.class){
+                                list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(1.2F));
+                            }
+                            else if(getArrayComponentType(value) == double.class){
+                                list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(1.2));
+                            }
+                            else {
+                                list = Arrays.asList(expectedValue,variableRead);
+                            }
+                            invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod,
+                                    AssertEnum.ASSERT_ARRAY_EQUALS, list));
                         }
                     } else if (TypeUtils.isPrimitiveMap(value)) {//TODO
                         Map valueCollection = (Map) value;
@@ -303,10 +313,10 @@ public class AssertBuilder {
                 clazz == int.class;
     }
 
-    private static String getExpression(Object obj){
+    private static String getNewArrayExpression(Object obj){
         StringBuilder sb = new StringBuilder();
         ArrayList<Integer> al = new ArrayList<>();
-        getStuffFromArray(obj,sb,al);
+        getArrayInstance(obj,sb,al);
         int dimensions = 0;
         for(int i = 0; sb.charAt(i) == '{'; i++)
             dimensions = i+1;
@@ -321,21 +331,60 @@ public class AssertBuilder {
         return sb.toString();
     }
 
-    private static void getStuffFromArray(Object obj, StringBuilder sb, ArrayList al) {
+    private static void getArrayInstance(Object obj, StringBuilder sb, ArrayList al) {
         sb.append("{");
         int size = Array.getLength(obj);
         al.add(size);
         for (int i = 0; i < size; i++) {
             Object value = Array.get(obj, i);
             if (value.getClass().isArray()) {
-                getStuffFromArray(value, sb, al);
+                getArrayInstance(value, sb, al);
             } else {
-                sb.append(value);
+                addValue(value,sb);
                 if(i+1 < size)
                     sb.append(",");
             }
         }
         sb.append("}");
+    }
+
+    private static void addValue(Object value,StringBuilder sb) {
+        if(value instanceof Character) {
+            switch ((char) value) {
+                case '\t':
+                    sb.append("'\\t'");
+                    break;
+                case '\b':
+                    sb.append("'\\b'");
+                    break;
+                case '\n':
+                    sb.append("'\\n'");
+                    break;
+                case '\r':
+                    sb.append("'\\r'");
+                    break;
+                case '\f':
+                    sb.append("'\\f'");
+                    break;
+                case '\'':
+                    sb.append("'\\''");
+                    break;
+                case '\"':
+                    sb.append("'\\\"'");
+                    break;
+                case '\\':
+                    sb.append("'\\\\'");
+                    break;
+                default:
+                    sb.append("'" + value + "'");
+            }
+        }
+        else if(value instanceof Float) {
+            sb.append(value + "F");
+        }
+        else {
+            sb.append(value);
+        }
     }
 
     private static Class getArrayComponentType(Object obj) {
@@ -345,65 +394,4 @@ public class AssertBuilder {
         }
         return obj.getClass().getComponentType();
     }
-
-    private static String primitiveArrayToString(Object array, Factory factory) {
-        String type = array.getClass().getCanonicalName();
-
-        String tmp;
-        if (type.equals("int[]")) {
-            final String elements = Arrays.stream((int[]) array)
-                    .boxed()
-                    .map(value -> getFieldReadOrLiteral(factory, value))
-                    .map(Object::toString)
-                    .collect(Collectors.joining(","));
-            return "new int[]{" + elements + "}";
-        }
-        if (type.equals("short[]")) {
-            tmp = Arrays.toString((short[]) array);
-            return "new short[]{" + tmp.substring(1, tmp.length() - 1) + "}";
-        }
-        if (type.equals("byte[]")) {
-            tmp = Arrays.toString((byte[]) array);
-            return "new byte[]{" + tmp.substring(1, tmp.length() - 1) + "}";
-        }
-        if (type.equals("long[]")) {
-            tmp = Arrays.toString((long[]) array);
-            return "new long[]{" + tmp.substring(1, tmp.length() - 1) + "}";
-        }
-        if (type.equals("float[]")) {
-            tmp = Arrays.toString((float[]) array);
-            return "new float[]{" + tmp.substring(1, tmp.length() - 1) + "}";
-        }
-        if (type.equals("double[]")) {
-            final String elements = Arrays.stream((double[]) array)
-                    .boxed()
-                    .map(value -> getFieldReadOrLiteral(factory, value))
-                    .map(Object::toString)
-                    .collect(Collectors.joining(","));
-            return "new double[]{" + elements + "}";
-        }
-        if (type.equals("boolean[]")) {
-            tmp = Arrays.toString((boolean[]) array);
-            return "new boolean[]{" + tmp.substring(1, tmp.length() - 1) + "}";
-        }
-        if (type.equals("char[]")) {
-            char[] arrayChar = (char[]) array;
-
-            if (arrayChar.length == 0) {
-                return "new char[]{}";
-            }
-            if (arrayChar.length == 1) {
-                return "new char[]{\'" + arrayChar[0] + "\'}";
-            } else {
-                String ret = "new char[]{\'" + arrayChar[0];
-                for (int i = 1; i < arrayChar.length - 1; i++) {
-                    ret += "\',\'" + arrayChar[i];
-                }
-                return ret + "\'}";
-            }
-        }
-
-        return null;
-    }
-
 }
