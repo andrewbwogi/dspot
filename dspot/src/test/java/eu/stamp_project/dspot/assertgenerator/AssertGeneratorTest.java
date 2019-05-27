@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtNamedElement;
@@ -21,8 +22,7 @@ import spoon.reflect.reference.CtReference;
 import spoon.reflect.visitor.filter.NamedElementFilter;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
@@ -281,5 +281,16 @@ public class AssertGeneratorTest extends AbstractTest {
         final List<CtMethod<?>> generatedAssertion = assertGenerator.assertionAmplification(testClass, Collections.singletonList(testAssertionError));
         System.out.println(generatedAssertion);
         assertFalse(generatedAssertion.isEmpty());
+    }
+
+    @Test
+    public void testAssertArrays() {
+        CtClass testClass = Utils.findClass("fr.inria.arrayassertion.TestClassWithSpecificCaseToBeAsserted");
+        CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
+        Map map = new HashMap<>();
+        int[][] intArray = {{1,1},{2,2}};
+        map.put("ar01", intArray);
+        List<CtStatement> statement = AssertBuilder.buildAssert(test1,new HashSet<>(),map,0.0);
+        System.out.println(statement);
     }
 }
