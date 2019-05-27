@@ -56,6 +56,19 @@ public class TempTest {
     }*/
 
     @org.junit.Test(timeout = 10000)
+    public void test3_withlog1() throws java.lang.Exception {
+        final double TOLERANCE = 1e-9;
+        double[] f1 = {1.2,4.5};
+        double[] f2 = {1.2,4.5};
+        org.junit.Assert.assertArrayEquals(f1,f2,TOLERANCE);
+
+        final float TOLERANCE2 = 1e-9F;
+        float[] f3 = {1.2F,4.5F};
+        float[] f4 = {1.2F,4.5F};
+        org.junit.Assert.assertArrayEquals(f3,f4,TOLERANCE2);
+    }
+
+    @org.junit.Test(timeout = 10000)
     public void test3_withlog0() throws java.lang.Exception {
         Object[][] array = new Object[5][5];
         //array[1][1] = 2;

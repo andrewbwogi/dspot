@@ -109,8 +109,18 @@ public class AssertBuilder {
                         //invocations.add(buildAssertForArray(factory, testMethod, observationKey, value));
                         if(isPrimitiveArray(value)){
                             CtExpression expectedValue = factory.createCodeSnippetExpression(getExpression(value));
+                            List<CtExpression> list;
+                            if(getArrayComponentType(value) == float.class){
+                                list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(1.2F));
+                            }
+                            else if(getArrayComponentType(value) == double.class){
+                                list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(1.2));
+                            }
+                            else {
+                                list = Arrays.asList(expectedValue,variableRead);
+                            }
                             invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_ARRAY_EQUALS,
-                                    Arrays.asList(expectedValue,variableRead)));
+                                    list));
                         }
 
                         /*invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_ARRAY_EQUALS,
@@ -357,8 +367,12 @@ public class AssertBuilder {
                     sb.append("'" + value + "'");
             }
         }
-        else
+        else if(value instanceof Float) {
+            sb.append(value + "F");
+        }
+        else {
             sb.append(value);
+        }
     }
 
     private static Class getArrayComponentType(Object obj) {
