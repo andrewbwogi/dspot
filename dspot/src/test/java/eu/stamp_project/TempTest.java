@@ -66,6 +66,10 @@ public class TempTest {
         float[] f3 = {1.2F,4.5F};
         float[] f4 = {1.2F,4.5F};
         org.junit.Assert.assertArrayEquals(f3,f4,TOLERANCE2);
+
+        double one = 1.1;
+        double two = 1.1;
+        org.junit.Assert.assertEquals(one,two,TOLERANCE);
     }
 
     @org.junit.Test(timeout = 10000)

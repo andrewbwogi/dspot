@@ -59,9 +59,9 @@ public class ParametrizedTestSuiteExample {
         float[] f2 = {1.2F,4.5F};
         org.junit.Assert.assertArrayEquals(f1,f2,1e-9F);
 
-	int one = 1;
-	int two = 1;
-	org.junit.Assert.assertEquals(one,two);
+	double one = 1.1;
+	double two = 1.1;
+	org.junit.Assert.assertEquals(one,two,0.2);
 	//ex.getInt();
 
 /*
