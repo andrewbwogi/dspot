@@ -318,12 +318,47 @@ public class AssertBuilder {
             if (value.getClass().isArray()) {
                 getStuffFromArray(value, sb, al);
             } else {
-                sb.append(value);
+                addValue(value,sb);
                 if(i+1 < size)
                     sb.append(",");
             }
         }
         sb.append("}");
+    }
+
+    private static void addValue(Object value,StringBuilder sb) {
+        if(value instanceof Character) {
+            switch ((char) value) {
+                case '\t':
+                    sb.append("'\\t'");
+                    break;
+                case '\b':
+                    sb.append("'\\b'");
+                    break;
+                case '\n':
+                    sb.append("'\\n'");
+                    break;
+                case '\r':
+                    sb.append("'\\r'");
+                    break;
+                case '\f':
+                    sb.append("'\\f'");
+                    break;
+                case '\'':
+                    sb.append("'\\''");
+                    break;
+                case '\"':
+                    sb.append("'\\\"'");
+                    break;
+                case '\\':
+                    sb.append("'\\\\'");
+                    break;
+                default:
+                    sb.append("'" + value + "'");
+            }
+        }
+        else
+            sb.append(value);
     }
 
     private static Class getArrayComponentType(Object obj) {

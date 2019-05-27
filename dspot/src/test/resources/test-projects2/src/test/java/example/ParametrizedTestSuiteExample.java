@@ -48,7 +48,13 @@ public class ParametrizedTestSuiteExample {
 	values2[2] = 5;
 	String[] values3 = {"one","two","three"};
 	org.junit.Assert.assertEquals(0, values[0]);
-	org.junit.Assert.assertArrayEquals(values, values2);
+	// org.junit.Assert.assertArrayEquals(values, values2);
+        char[] valuesnew = {'d', 'w', 'd', 'd'};
+        char[] valuesnew2 = {'d', 'w', 'd', 'd'};
+
+        char[] valuesnew3 = "t\"t y	o".toCharArray();
+        char[] valuesnew4 = "t\"t y	o".toCharArray();
+        org.junit.Assert.assertArrayEquals(valuesnew3, valuesnew4);
 	//ex.getInt();
 
 /*
