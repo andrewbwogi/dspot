@@ -37,7 +37,7 @@ public class AssertGeneratorTest extends AbstractTest {
 
     public static final String THE_METHOD_IS_EMPTY_IS_UNDEFINED_FOR_THE_TYPE = "The method isEmpty() is undefined for the type ";
     private AssertGenerator assertGenerator;
-
+/*
     @Override
     @Before
     public void setUp() throws Exception {
@@ -50,7 +50,7 @@ public class AssertGeneratorTest extends AbstractTest {
         Utils.getInputConfiguration().setWithComment(false);
         Utils.getInputConfiguration().setTimeOutInMs(10000);
     }
-
+*/
     @Test
     public void testOnTestWithAssertedValues() {
 
@@ -285,12 +285,52 @@ public class AssertGeneratorTest extends AbstractTest {
 
     @Test
     public void testAssertArrays() {
-        CtClass testClass = Utils.findClass("fr.inria.arrayassertion.TestClassWithSpecificCaseToBeAsserted");
-        CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
         Map map = new HashMap<>();
-        int[][] intArray = {{1,1},{2,2}};
-        map.put("ar01", intArray);
-        List<CtStatement> statement = AssertBuilder.buildAssert(test1,new HashSet<>(),map,0.0);
-        System.out.println(statement);
+        Set empty = new HashSet<>();
+        CtMethod ignore = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test1");
+        //int[][] intArray2 = new int[3][2]{{1,1,1},{2,2,2}};
+        int[][] intArray3 = {{1,1},{2,2,2}};
+        //int t = intArray2[1][2];
+        int[][] ja = new int[][]{{1,1,1},{2,2,2}};
+
+        //System.out.println("----------------" + t);
+
+
+
+
+        //CtMethod ignore =
+        int[][] intArray = {{1,1,1},{2,2,2}};
+        map.put("test", intArray);
+        List<CtStatement> statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
+        assertEquals("[org.junit.Assert.assertArrayEquals(new int[][]{{1,1,1},{2,2,2}}, test)]", statement.toString());
+
+        char[] charArray = "\\\"q".toCharArray();
+        map.put("test", charArray);
+        statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
+        assertEquals("[org.junit.Assert.assertArrayEquals(new char[]{'\\\\','\\\"','q'}, test)]", statement.toString());
+
+        double[] doubleArray = {1.1,2.2};
+        map.put("test", doubleArray);
+        statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
+        assertEquals("[org.junit.Assert.assertArrayEquals(new double[]{1.1,2.2}, test, 0.1)]", statement.toString());
+
+        float[] floatArray = {1.1F,2.2F};
+        map.put("test", floatArray);
+        statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
+        assertEquals("[org.junit.Assert.assertArrayEquals(new float[]{1.1F,2.2F}, test, 0.1F)]", statement.toString());
+
+        int[][][] jaggedArray = new int[][][]{{},{{1,1},{2,2,2}},{}};
+        map.put("test", jaggedArray);
+        statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
+        assertEquals("[org.junit.Assert.assertArrayEquals(new int[][][]{{},{{1,1},{2,2,2}},{}}, test)]", statement.toString());
+
+/*
+        int[][][] emptyArray1 = new int[][][]{{{}},{{}}};
+        int[] emptyArray2 = new int[]{};
+        map.put("test", emptyArray1);
+        List<CtStatement> statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
+        assertEquals("", statement.toString());*/
+        //assertArrayEquals(emptyArray1, emptyArray2);
+        //assertEquals("[org.junit.Assert.assertArrayEquals(new double[]{1.1,2.2}, test, 0.1)]", statement.toString());
     }
 }
