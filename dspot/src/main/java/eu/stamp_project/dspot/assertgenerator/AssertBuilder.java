@@ -82,6 +82,7 @@ public class AssertBuilder {
                             invocations.addAll(buildSnippetAssertCollection(factory, testMethod, observationKey, (Collection) value));
                         }
                     } else if (TypeUtils.isArray(value)) {
+                        System.out.println(value.getClass().getName());
                         if(isPrimitiveArray(value)){
                             CtExpression expectedValue = factory.createCodeSnippetExpression(getNewArrayExpression(value));
                             List<CtExpression> list;
@@ -303,21 +304,21 @@ public class AssertBuilder {
     }
 
     private static Boolean isPrimitiveArray(Object value) {
-        Class clazz = getArrayComponentType(value);
+        return !value.getClass().getName().contains("L");
+        /*Class clazz = getArrayComponentType(value);
         return clazz == short.class ||
                 clazz == double.class ||
                 clazz == float.class ||
                 clazz == long.class ||
                 clazz == char.class ||
                 clazz == byte.class ||
-                clazz == int.class;
+                clazz == int.class;*/
     }
 
     private static String getNewArrayExpression(Object obj){
         StringBuilder sb = new StringBuilder();
         ArrayList<Integer> al = new ArrayList<>();
         getArrayInstance(obj,sb,al);
-        System.out.println("---------------- new: " + sb.toString());
         /*int dimensions = 0;
         int maxDimensions = 0;
 
@@ -340,7 +341,7 @@ public class AssertBuilder {
             if(sb.charAt(i-1) == '}' && sb.charAt(i) == '{')
                 sb.insert(i,",");
         }
-        sb.insert(0,"new " + getArrayComponentType(obj));
+        sb.insert(0,"new " + getArrayComponentType(obj,maxDimensions));
         return sb.toString();
     }
 
@@ -413,5 +414,20 @@ public class AssertBuilder {
             }
         }
         return null;
+    }
+
+    private static String getArrayComponentType(Object obj,int dimension) {
+        char type = obj.getClass().getName().charAt(dimension);
+        switch(type){
+            case 'Z': return "boolean";
+            case 'B': return "byte";
+            case 'C': return "char";
+            case 'D': return "double";
+            case 'F': return "float";
+            case 'I': return "int";
+            case 'J': return "long";
+            case 'S': return "short";
+            default : return "";
+        }
     }
 }

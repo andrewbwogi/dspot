@@ -288,17 +288,7 @@ public class AssertGeneratorTest extends AbstractTest {
         Map map = new HashMap<>();
         Set empty = new HashSet<>();
         CtMethod ignore = Utils.findMethod("fr.inria.sample.TestClassWithAssert", "test1");
-        //int[][] intArray2 = new int[3][2]{{1,1,1},{2,2,2}};
-        int[][] intArray3 = {{1,1},{2,2,2}};
-        //int t = intArray2[1][2];
-        int[][] ja = new int[][]{{1,1,1},{2,2,2}};
 
-        //System.out.println("----------------" + t);
-
-
-
-
-        //CtMethod ignore =
         int[][] intArray = {{1,1,1},{2,2,2}};
         map.put("test", intArray);
         List<CtStatement> statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
@@ -319,18 +309,23 @@ public class AssertGeneratorTest extends AbstractTest {
         statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
         assertEquals("[org.junit.Assert.assertArrayEquals(new float[]{1.1F,2.2F}, test, 0.1F)]", statement.toString());
 
+        boolean[] booleanArray = {true,false};
+        map.put("test", booleanArray);
+        statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
+        assertEquals("[org.junit.Assert.assertArrayEquals(new boolean[]{true,false}, test)]", statement.toString());
+
         int[][][] jaggedArray = new int[][][]{{},{{1,1},{2,2,2}},{}};
         map.put("test", jaggedArray);
         statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
         assertEquals("[org.junit.Assert.assertArrayEquals(new int[][][]{{},{{1,1},{2,2,2}},{}}, test)]", statement.toString());
 
-/*
-        int[][][] emptyArray1 = new int[][][]{{{}},{{}}};
-        int[] emptyArray2 = new int[]{};
+        int[][][] emptyArray1 = new int[][][]{{},{{}}};
+        int[][] emptyArray2 = new int[][]{};
         map.put("test", emptyArray1);
-        List<CtStatement> statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
-        assertEquals("", statement.toString());*/
-        //assertArrayEquals(emptyArray1, emptyArray2);
-        //assertEquals("[org.junit.Assert.assertArrayEquals(new double[]{1.1,2.2}, test, 0.1)]", statement.toString());
+        statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
+        assertEquals("[org.junit.Assert.assertArrayEquals(new int[][][]{{},{{}}}, test)]", statement.toString());
+        map.put("test", emptyArray2);
+        statement = AssertBuilder.buildAssert(ignore,empty,map,0.0);
+        assertEquals("[org.junit.Assert.assertArrayEquals(new int[][]{}, test)]", statement.toString());
     }
 }
