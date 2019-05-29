@@ -317,11 +317,24 @@ public class AssertBuilder {
         StringBuilder sb = new StringBuilder();
         ArrayList<Integer> al = new ArrayList<>();
         getArrayInstance(obj,sb,al);
-        int dimensions = 0;
-        for(int i = 0; sb.charAt(i) == '{'; i++)
-            dimensions = i+1;
-        for(int i = dimensions; i>0; i--){
-            sb.insert(0,"[" + al.get(i-1) + "]");
+        System.out.println("---------------- new: " + sb.toString());
+        /*int dimensions = 0;
+        int maxDimensions = 0;
+
+        for(int i = 0; i<sb.length(); i++) {
+            if (sb.charAt(i) == '{')
+                dimensions++;
+            if (sb.charAt(i) == '}')
+                dimensions--;
+            if (dimensions > maxDimensions)
+                maxDimensions = dimensions;
+        }*/
+
+        /*for(int i = 0; sb.charAt(i) == '{'; i++)
+            dimensions = i+1;*/
+        int maxDimensions = 1 + obj.getClass().getName().lastIndexOf('[');
+        for(int i = maxDimensions; i>0; i--){
+            sb.insert(0,"[]");
         }
         for(int i = 1; i<sb.length(); i++){
             if(sb.charAt(i-1) == '}' && sb.charAt(i) == '{')
@@ -388,10 +401,17 @@ public class AssertBuilder {
     }
 
     private static Class getArrayComponentType(Object obj) {
-        int dimensions = 1 + obj.getClass().getName().lastIndexOf('[');
-        for(int i = 0; i<(dimensions-1); i++){
-            obj = Array.get(obj,0);
+        int size = Array.getLength(obj);
+        for (int i = 0; i < size; i++) {
+            Object value = Array.get(obj, i);
+            if (value.getClass().isArray()) {
+                Class clazz = getArrayComponentType(value);
+                if(clazz != null)
+                    return clazz;
+            } else {
+                return obj.getClass().getComponentType();
+            }
         }
-        return obj.getClass().getComponentType();
+        return null;
     }
 }
