@@ -82,14 +82,13 @@ public class AssertBuilder {
                             invocations.addAll(buildSnippetAssertCollection(factory, testMethod, observationKey, (Collection) value));
                         }
                     } else if (TypeUtils.isArray(value)) {
-                        System.out.println(value.getClass().getName());
                         if(isPrimitiveArray(value)){
                             CtExpression expectedValue = factory.createCodeSnippetExpression(getNewArrayExpression(value));
                             List<CtExpression> list;
-                            if(getArrayComponentType(value) == float.class){
+                            if(getArrayComponentType(value).equals("float")){
                                 list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(0.1F));
                             }
-                            else if(getArrayComponentType(value) == double.class){
+                            else if(getArrayComponentType(value).equals("double")){
                                 list = Arrays.asList(expectedValue,variableRead,factory.createLiteral(0.1));
                             }
                             else {
@@ -305,43 +304,21 @@ public class AssertBuilder {
 
     private static Boolean isPrimitiveArray(Object value) {
         return !value.getClass().getName().contains("L");
-        /*Class clazz = getArrayComponentType(value);
-        return clazz == short.class ||
-                clazz == double.class ||
-                clazz == float.class ||
-                clazz == long.class ||
-                clazz == char.class ||
-                clazz == byte.class ||
-                clazz == int.class;*/
     }
 
     private static String getNewArrayExpression(Object obj){
         StringBuilder sb = new StringBuilder();
         ArrayList<Integer> al = new ArrayList<>();
         getArrayInstance(obj,sb,al);
-        /*int dimensions = 0;
-        int maxDimensions = 0;
-
-        for(int i = 0; i<sb.length(); i++) {
-            if (sb.charAt(i) == '{')
-                dimensions++;
-            if (sb.charAt(i) == '}')
-                dimensions--;
-            if (dimensions > maxDimensions)
-                maxDimensions = dimensions;
-        }*/
-
-        /*for(int i = 0; sb.charAt(i) == '{'; i++)
-            dimensions = i+1;*/
-        int maxDimensions = 1 + obj.getClass().getName().lastIndexOf('[');
-        for(int i = maxDimensions; i>0; i--){
+        int dimensions = 1 + obj.getClass().getName().lastIndexOf('[');
+        for(int i = dimensions; i>0; i--){
             sb.insert(0,"[]");
         }
         for(int i = 1; i<sb.length(); i++){
             if(sb.charAt(i-1) == '}' && sb.charAt(i) == '{')
                 sb.insert(i,",");
         }
-        sb.insert(0,"new " + getArrayComponentType(obj,maxDimensions));
+        sb.insert(0,"new " + getArrayComponentType(obj));
         return sb.toString();
     }
 
@@ -401,23 +378,9 @@ public class AssertBuilder {
         }
     }
 
-    private static Class getArrayComponentType(Object obj) {
-        int size = Array.getLength(obj);
-        for (int i = 0; i < size; i++) {
-            Object value = Array.get(obj, i);
-            if (value.getClass().isArray()) {
-                Class clazz = getArrayComponentType(value);
-                if(clazz != null)
-                    return clazz;
-            } else {
-                return obj.getClass().getComponentType();
-            }
-        }
-        return null;
-    }
-
-    private static String getArrayComponentType(Object obj,int dimension) {
-        char type = obj.getClass().getName().charAt(dimension);
+    private static String getArrayComponentType(Object obj) {
+        int dimensions = 1 + obj.getClass().getName().lastIndexOf('[');
+        char type = obj.getClass().getName().charAt(dimensions);
         switch(type){
             case 'Z': return "boolean";
             case 'B': return "byte";
