@@ -2,35 +2,20 @@ package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtMethod;
-
 import java.util.*;
-
 import static junit.framework.TestCase.assertEquals;
 
 public class AssertBuilderTest extends AbstractTest {
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        Utils.getInputConfiguration().setWithComment(false);
-        Utils.getInputConfiguration().setTimeOutInMs(10000);
-    }
 
     @Test
     public void testAssertArrays() {
 
         /*
-            ...
+            Make sure that observations containing arrays of single or multiple dimensions with components of primitive type
+            and empty arrays correctly generate assertions statements.
          */
 
         Map map = new HashMap<>();
