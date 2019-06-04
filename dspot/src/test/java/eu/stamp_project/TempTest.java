@@ -54,7 +54,7 @@ public class TempTest {
         eu.stamp_project.compare.ObjectLog.log(values2, "values2", "test3__7___end");
 
     }*/
-
+/*
     @org.junit.Test(timeout = 10000)
     public void test3_withlog1() throws java.lang.Exception {
         final double TOLERANCE = 1e-9;
@@ -70,8 +70,8 @@ public class TempTest {
         double one = 1.1;
         double two = 1.1;
         org.junit.Assert.assertEquals(one,two,TOLERANCE);
-    }
-
+    }*/
+/*
     @org.junit.Test(timeout = 10000)
     public void test3_withlog0() throws java.lang.Exception {
         Object[][] array = new Object[5][5];
@@ -95,7 +95,7 @@ public class TempTest {
         System.out.println(getArrayType(array3.clone()));
         String expr = getExpression(array3);
         System.out.println(expr);
-        //array[1][1] = 2;
+        //array[1][1] = 2;*/
 /*
         Integer[][] array2 new Integer[5][5];
         //array[1][1] = 2;
@@ -122,7 +122,7 @@ public class TempTest {
                 .flatMap(Arrays::stream)
                 .collect(Collectors.toList());
 */
-    }
+   // }
 /*
     @org.junit.AfterClass
     public static void afterClass() {
@@ -130,6 +130,32 @@ public class TempTest {
     }
 */
 
+    @org.junit.Test(timeout = 10000)
+    public void test3_withlog2() throws java.lang.Exception {
+        Ob o = new Ob(1, 2);
+        eu.stamp_project.compare.ObjectLog.log(o, "o", "test3__1");
+        Ob o2 = new Ob(1, 2);
+        eu.stamp_project.compare.ObjectLog.log(o2, "o2", "test3__3");
+        o.setB(3);
+        o2.setB(3);
+        Ob[] ao = new Ob[]{ new Ob(1, 2), new Ob(1, 2) };
+        eu.stamp_project.compare.ObjectLog.log(ao, "ao", "test3__7");
+        Ob[] ao2 = new Ob[]{ new Ob(1, 2), new Ob(1, 2) };
+        eu.stamp_project.compare.ObjectLog.log(ao2, "ao2", "test3__10");
+        ao[0].setB(3);
+        ao2[0].setB(3);
+        ao[1].setB(3);
+        ao2[1].setB(3);
+        eu.stamp_project.compare.ObjectLog.log(o, "o", "test3__1___end");
+        eu.stamp_project.compare.ObjectLog.log(o2, "o2", "test3__3___end");
+        eu.stamp_project.compare.ObjectLog.log(ao, "ao", "test3__7___end");
+        eu.stamp_project.compare.ObjectLog.log(ao2, "ao2", "test3__10___end");
+    }
+
+    @org.junit.AfterClass
+    public static void afterClass() {
+        eu.stamp_project.compare.ObjectLog.save();
+    }
     private Class getArrayType(Object obj) {
         Class cls = obj.getClass();
         String clsName = cls.getName();

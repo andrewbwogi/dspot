@@ -106,6 +106,7 @@ public class AssertBuilder {
                         // Array
                     } else if (TypeUtils.isArray(value)) {//TODO must be implemented
                         System.out.println("in array");
+                        System.out.println("value class: " + value.getClass());
                         //invocations.add(buildAssertForArray(factory, testMethod, observationKey, value));
                         if(isPrimitiveArray(value)){
                             CtExpression expectedValue = factory.createCodeSnippetExpression(getExpression(value));

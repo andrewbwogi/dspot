@@ -36,12 +36,44 @@ public class ParametrizedTestSuiteExample {
 
     @org.junit.Test
     public void test3() {
-        /*example.Example ex = new example.Example();
+        float[] f1 = {1.2F,4.5F};
+        float[] f2 = {1.2F,4.5F};
+        org.junit.Assert.assertArrayEquals(f1,f2,1e-9F);
+     
+	
+
+	Ob o = new Ob(1, 2);
+	Ob o2 = new Ob(1, 2);
+	org.junit.Assert.assertEquals(o, o2);
+
+	o.setB(3);
+        o2.setB(3);
+        org.junit.Assert.assertEquals(o, o2);
+
+        Ob[] ao = {new Ob(1, 2),new Ob(1, 2)};
+	Ob[] ao2 = {new Ob(1, 2),new Ob(1, 2)};
+	org.junit.Assert.assertArrayEquals(ao, ao2);
+
+	ao[0].setB(3);
+        ao2[0].setB(3);
+        org.junit.Assert.assertEquals(ao, ao2);
+
+
+	ao[1].setB(3);
+        ao2[1].setB(3);
+        org.junit.Assert.assertEquals(ao, ao2);
+    }
+
+}
+
+   /*example.Example ex = new example.Example();
         java.lang.String s = "abcd";
 	java.lang.String s2 = s;
 	org.junit.Assert.assertEquals(s2, s);
         org.junit.Assert.assertEquals('d', ex.charAt(s, ((s.length()) - 1)));*/
+        
 
+/*
 	int[] values = {0, 0, 5, 0};
 	//int[] values2 = {0, 1, 2, 3};
 	int[] values2 = new int[4];
@@ -63,7 +95,7 @@ public class ParametrizedTestSuiteExample {
 	double two = 1.1;
 	org.junit.Assert.assertEquals(one,two,0.2);
 	//ex.getInt();
-
+*/
 /*
 	int i = 2;
 	int i2 = 2;
@@ -85,10 +117,3 @@ public class ParametrizedTestSuiteExample {
 	mulal.get(1).add(4);
         ArrayList<ArrayList<Integer>> mulal2 = mulal;
         org.junit.Assert.assertEquals(mulal, mulal2);*/
-	
-	/*Ob o = new Ob(1, 2);
-	Ob o2 = new Ob(1, 2);
-	org.junit.Assert.assertEquals(o, o2);*/
-    }
-
-}

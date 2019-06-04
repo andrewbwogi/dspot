@@ -11,7 +11,12 @@ public class Ob {
 		return this.a;
 	}
 
-	public int b() {
+        public void setB(int b) {
+		this.b = b;
+	}
+
+
+	public int getB() {
 		return this.b;
 	}
 	
@@ -27,6 +32,6 @@ public class Ob {
         Ob ob = (Ob) o;
 
         return a == ob.a() &&
-                b == ob.b();
+                b == ob.getB();
     }
 }
