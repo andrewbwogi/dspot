@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -58,6 +59,8 @@ public class ObjectLog {
         }*/
         // todo debug
         System.out.println("zzzzzzzzzzzzzzz logging");
+        System.out.println("objectObservedAsString");
+        System.out.println(objectObservedAsString);
         getSingleton()._log(
                 objectToObserve,
                 objectToObserve,
@@ -76,29 +79,47 @@ public class ObjectLog {
                       String id,
                       int deep,
                       List<Method> methodsToReachCurrentObject) {
+        System.out.println("in _log, observedObjectAsString: " + observedObjectAsString);
         if (deep <= maxDeep) {
             final boolean primitive = Utils.isPrimitive(objectToObserve);
             final boolean primitiveArray = Utils.isPrimitiveArray(objectToObserve);
             final boolean primitiveCollectionOrMap = Utils.isPrimitiveCollectionOrMap(objectToObserve);
             if (objectToObserve == null) {
+                System.out.println("in null");
                 addObservation(id, observedObjectAsString, null);
             } else if (isSerializable(objectToObserve) &&
                     (primitive || primitiveArray || primitiveCollectionOrMap)) {
                 System.out.println("in isSerializable");
                 addObservation(id, observedObjectAsString, objectToObserve);
             } else if (Utils.isCollection(objectToObserve)) {
+                System.out.println("in collection");
                 addObservation(id, observedObjectAsString + ".isEmpty()", ((Collection) objectToObserve).isEmpty());
             } else if (Utils.isMap(objectToObserve)) {
+                System.out.println("in collection");
                 addObservation(id, observedObjectAsString + ".isEmpty()", ((Map) objectToObserve).isEmpty());
             } else if (!objectToObserve.getClass().getName().toLowerCase().contains("mock")) {
-                observeNotNullObject(
-                        startingObject,
-                        currentObservedClass == null ? objectToObserve.getClass() : currentObservedClass,
-                        observedObjectAsString,
-                        id,
-                        deep,
-                        methodsToReachCurrentObject
-                );
+                System.out.println("in observeNotNullObject");
+                if(currentObservedClass.isArray())
+                {
+                    Class componentType = getArrayComponentType(startingObject);
+                    ArrayList<Integer> al = new ArrayList<>();
+                    int dimensions =  1 + startingObject.getClass().getName().lastIndexOf('[');
+                    for(int i =0;i<dimensions;i++){
+                        al.add(0);
+                    }
+                    goThroughArray(startingObject,componentType,observedObjectAsString,id,deep,methodsToReachCurrentObject,0,al);
+                } else {
+                    observeNotNullObject(
+                            startingObject,
+                            currentObservedClass == null ? objectToObserve.getClass() : currentObservedClass,
+                            observedObjectAsString,
+                            id,
+                            deep,
+                            methodsToReachCurrentObject);
+
+                }
+
+
             }
         }
     }
@@ -125,7 +146,10 @@ public class ObjectLog {
             if (!observations.containsKey(id)) {
                 observations.put(id, new Observation());
             }
-            System.out.println(((int[]) actualValue)[1]);
+            System.out.println("observedObjectAsString");
+            System.out.println(observedObjectAsString);
+            System.out.println("actualValue");
+            System.out.println(actualValue);
             observations.get(id).add(observedObjectAsString, actualValue);
         }
     }
@@ -168,27 +192,86 @@ public class ObjectLog {
                                       String id,
                                       int deep,
                                       List<Method> methodsToReachCurrentObject) {
+        System.out.println("in observeNotNullObject first line");
+        System.out.println("currentObservedClass: " + currentObservedClass);
+        try {
+            if(currentObservedClass.isArray())
+            {
+
+                System.out.println("an array!");
+                //System.out.println(currentObservedClass.getComponentType());
+                //System.out.println(currentObservedClass.getComponentType().isArray());
+                Class componentType = getArrayComponentType(startingObject);
+                System.out.println(componentType);
+                ArrayList<Integer> al = new ArrayList<>();
+                int dimensions =  1 + startingObject.getClass().getName().lastIndexOf('[');
+                for(int i =0;i<dimensions;i++){
+                    al.add(0);
+                }
+                goThroughArray(startingObject,componentType,stringObject,id,deep,methodsToReachCurrentObject,0,al);
+            } else {
+                for (Method method : methodsHandler.getAllMethods(currentObservedClass)) {
+                    System.out.println("in observeNotNullObject for");
+                    try {
+                        final ArrayList<Method> tmpListOfMethodsToReachCurrentObject = new ArrayList<>(methodsToReachCurrentObject);
+                        tmpListOfMethodsToReachCurrentObject.add(method);
+                        final Object result = chainInvocationOfMethods(tmpListOfMethodsToReachCurrentObject, startingObject);
+                        if (startingObject.getClass().isAnonymousClass()) {
+                            System.out.println("in observeNotNullObject if");
+                            _log(startingObject,
+                                    result,
+                                    method.getReturnType(),
+                                    "(" + stringObject + ")." + method.getName() + "()",
+                                    id,
+                                    deep + 1,
+                                    tmpListOfMethodsToReachCurrentObject
+                            );
+                        } else {
+                            System.out.println("in observeNotNullObject else");
+                            String nameOfVisibleClass = getVisibleClass(currentObservedClass);
+                            _log(startingObject,
+                                    result,
+                                    method.getReturnType(),
+                                    "(" + nameOfVisibleClass + stringObject + ")." + method.getName() + "()",
+                                    id,
+                                    deep + 1,
+                                    tmpListOfMethodsToReachCurrentObject
+                            );
+                        }
+                        tmpListOfMethodsToReachCurrentObject.remove(method);
+                    } catch (FailToObserveException ignored) {
+                        // ignored, we just do nothing...
+                    }
+                }}
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void observeNotNullArrayObject(Object startingObject, Class currentObservedClass, String stringObject, String id, int deep, List<Method> methodsToReachCurrentObject,
+                                           ArrayList<Integer> al) {
+        System.out.println("in observeNotNullObject first line");
+        System.out.println("currentObservedClass: " + currentObservedClass);
         try {
             for (Method method : methodsHandler.getAllMethods(currentObservedClass)) {
+                System.out.println("in observeNotNullObject for");
                 try {
                     final ArrayList<Method> tmpListOfMethodsToReachCurrentObject = new ArrayList<>(methodsToReachCurrentObject);
                     tmpListOfMethodsToReachCurrentObject.add(method);
                     final Object result = chainInvocationOfMethods(tmpListOfMethodsToReachCurrentObject, startingObject);
                     if (startingObject.getClass().isAnonymousClass()) {
-                        _log(startingObject,
-                                result,
-                                method.getReturnType(),
-                                "(" + stringObject + ")." + method.getName() + "()",
-                                id,
-                                deep + 1,
-                                tmpListOfMethodsToReachCurrentObject
-                        );
+                        // todo is this relevant for reference type arrays?
                     } else {
+                        System.out.println("in observeNotNullObject else");
                         String nameOfVisibleClass = getVisibleClass(currentObservedClass);
+                        StringBuilder sb = new StringBuilder();
+                        for(int i = 0; i<al.size();i++){
+                            sb.append("[" + al.get(i) + "]");
+                        }
                         _log(startingObject,
                                 result,
                                 method.getReturnType(),
-                                "(" + nameOfVisibleClass + stringObject + ")." + method.getName() + "()",
+                                "(" + nameOfVisibleClass + stringObject + ")." + method.getName() + "()" + sb.toString(),
                                 id,
                                 deep + 1,
                                 tmpListOfMethodsToReachCurrentObject
@@ -202,6 +285,48 @@ public class ObjectLog {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void goThroughArray(Object obj, Class currentObservedClass, String stringObject, String id, int deep,
+                                List<Method> methodsToReachCurrentObject,int depth,ArrayList<Integer> al) {
+        int size = Array.getLength(obj);
+        for (int i = 0; i < size; i++) {
+            al.set(depth,i);
+            Object value = Array.get(obj, i);
+            if (value.getClass().isArray()) {
+                goThroughArray(value,
+                        currentObservedClass,
+                        stringObject,
+                        id,
+                        deep,
+                        methodsToReachCurrentObject,(depth+1),al);
+            } else {
+                observeNotNullArrayObject(value,
+                        currentObservedClass,
+                        stringObject,
+                        id,
+                        deep,
+                        methodsToReachCurrentObject,al);
+            }
+        }
+    }
+
+
+    private static Class getArrayComponentType(Object obj) {
+        //System.out.println("in getArrayComponentType");
+        //System.out.println(obj.getClass());
+        int size = Array.getLength(obj);
+        for (int i = 0; i < size; i++) {
+            Object value = Array.get(obj, i);
+            if (value.getClass().isArray()) {
+                Class clazz = getArrayComponentType(value);
+                if(clazz != null)
+                    return clazz;
+            } else {
+                return obj.getClass().getComponentType();
+            }
+        }
+        return null;
     }
 
     private String getVisibleClass(Class<?> currentObservedClass) {
