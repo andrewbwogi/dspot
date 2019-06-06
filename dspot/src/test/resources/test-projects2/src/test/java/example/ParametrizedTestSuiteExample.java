@@ -36,9 +36,7 @@ public class ParametrizedTestSuiteExample {
 
     @org.junit.Test
     public void test3() {
-        float[] f1 = {1.2F,4.5F};
-        float[] f2 = {1.2F,4.5F};
-        org.junit.Assert.assertArrayEquals(f1,f2,1e-9F);
+        
      
 	
 
@@ -65,6 +63,13 @@ public class ParametrizedTestSuiteExample {
     }
 
 }
+
+/*
+float[] f1 = {1.2F,4.5F};
+        float[] f2 = {1.2F,4.5F};
+        org.junit.Assert.assertArrayEquals(f1,f2,1e-9F);
+
+*/
 
    /*example.Example ex = new example.Example();
         java.lang.String s = "abcd";

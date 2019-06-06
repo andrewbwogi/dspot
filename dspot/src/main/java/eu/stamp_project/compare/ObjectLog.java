@@ -2,6 +2,7 @@ package eu.stamp_project.compare;
 
 
 import eu.stamp_project.testrunner.EntryPoint;
+import org.apache.commons.io.FileUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,6 +23,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+
+import static java.nio.charset.Charset.forName;
 
 /**
  * User: Simon
@@ -53,6 +56,11 @@ public class ObjectLog {
     }
 
     public static void log(Object objectToObserve, String objectObservedAsString, String id) {
+        try {
+            FileUtils.writeStringToFile(new File("/home/andrew/Skrivbord/log.txt"), "log", forName("UTF-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         /*if (objectToObserve == null) {
             getSingleton().addObservation(id, "null", null);
             return;
@@ -99,8 +107,9 @@ public class ObjectLog {
                 addObservation(id, observedObjectAsString + ".isEmpty()", ((Map) objectToObserve).isEmpty());
             } else if (!objectToObserve.getClass().getName().toLowerCase().contains("mock")) {
                 System.out.println("in observeNotNullObject");
-                if(currentObservedClass.isArray())
+                if(objectToObserve.getClass().isArray())
                 {
+                    System.out.println("in first array");
                     Class componentType = getArrayComponentType(startingObject);
                     ArrayList<Integer> al = new ArrayList<>();
                     int dimensions =  1 + startingObject.getClass().getName().lastIndexOf('[');
@@ -146,7 +155,7 @@ public class ObjectLog {
             if (!observations.containsKey(id)) {
                 observations.put(id, new Observation());
             }
-            System.out.println("observedObjectAsString");
+            System.out.println("observedObjectAsString in addObservation");
             System.out.println(observedObjectAsString);
             System.out.println("actualValue");
             System.out.println(actualValue);
@@ -271,7 +280,7 @@ public class ObjectLog {
                         _log(startingObject,
                                 result,
                                 method.getReturnType(),
-                                "(" + nameOfVisibleClass + stringObject + ")." + method.getName() + "()" + sb.toString(),
+                                "(" + nameOfVisibleClass + stringObject + ")" + sb.toString() + "." + method.getName() + "()" ,
                                 id,
                                 deep + 1,
                                 tmpListOfMethodsToReachCurrentObject
@@ -352,8 +361,24 @@ public class ObjectLog {
 
     public static void save() {
         getSingleton().observations.values().forEach(Observation::purify);
+        StringBuilder sb = new StringBuilder();
         try (FileOutputStream fout = new FileOutputStream(OBSERVATIONS_PATH_FILE_NAME)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(fout)) {
+                for(String o : getSingleton().observations.keySet()) {
+                    System.out.println(o);
+                    sb.append("\n" + o);
+                }
+                for(Observation o : getSingleton().observations.values()) {
+                    for(String s : o.getObservationValues().keySet()){
+                        System.out.println(s);
+                        sb.append("\n" + s);
+                        System.out.println(o.getObservationValues().get(s));
+                        sb.append("\n" + o.getObservationValues().get(s));
+                    }
+                    System.out.println(o);
+                    sb.append("\n" + o);
+                }
+                FileUtils.writeStringToFile(new File("/home/andrew/Skrivbord/test.txt"), sb.toString(), forName("UTF-8"));
                 oos.writeObject(getSingleton().observations);
                 System.out.println(
                         String.format("File saved to the following path: %s",

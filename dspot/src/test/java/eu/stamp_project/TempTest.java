@@ -1,9 +1,13 @@
 package eu.stamp_project;
 
+import eu.stamp_project.compare.ObjectLog;
+import eu.stamp_project.compare.Observation;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TempTest {
@@ -154,7 +158,21 @@ public class TempTest {
 
     @org.junit.AfterClass
     public static void afterClass() {
+
         eu.stamp_project.compare.ObjectLog.save();
+
+        Map<String, Observation> observations = ObjectLog.getObservations();
+        //todo debug
+        //printMap(observations);
+        System.out.println("ppppppppppppppppppp observations");
+        for(String s : observations.keySet()){
+            System.out.println("outer observation");
+            System.out.println(s);
+            for(String s2 : observations.get(s).getObservationValues().keySet()){
+                System.out.println("inner observation: " + s2);
+                //System.out.println(((int[]) observations.get(s).getObservationValues().get(s2))[1]);
+            }
+        }
     }
     private Class getArrayType(Object obj) {
         Class cls = obj.getClass();
