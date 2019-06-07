@@ -75,45 +75,28 @@ public class MethodsAssertGenerator {
      * @return New tests with new assertions generated from observation points values
      */
     public List<CtMethod<?>> addAssertions(CtType<?> testClass, List<CtMethod<?>> testCases) {
-        CtType clone = testClass.clone();
-        testClass.getPackage().addType(clone);
-        LOGGER.info("Add observations points in passing tests.");
-        LOGGER.info("Instrumentation...");
-
-        // add logs in tests to observe state of tested program
-        final List<CtMethod<?>> testCasesWithLogs = testCases.stream()
-                .map(ctMethod -> {
-                            DSpotUtils.printProgress(testCases.indexOf(ctMethod), testCases.size());
-                            return AssertGeneratorHelper.createTestWithLog(
-                                    ctMethod,
-                                    this.originalClass.getPackage().getQualifiedName(),
-                                    this.variableReadsAsserted.get(ctMethod)
-                            );
-                        }
-                ).filter(ctMethod -> !ctMethod.getBody().getStatements().isEmpty())
-                .collect(Collectors.toList());
+        CtType clone = two(testClass);
+        final List<CtMethod<?>> testCasesWithLogs = addLogs(testCases);
         if (testCasesWithLogs.isEmpty()) {
             LOGGER.warn("Could not continue the assertion amplification since all the instrumented test have an empty body.");
             return testCasesWithLogs;
         }
+        final List<CtMethod<?>> testsToRun = setupTests(testCasesWithLogs,clone);
+        compileRunTests(clone,testsToRun);
+        return addAssertions(testCases);
+    }
 
-        // clone and set up tests with added logs
-        final List<CtMethod<?>> testsToRun = new ArrayList<>();
-        IntStream.range(0, 3).forEach(i -> testsToRun.addAll(
-                testCasesWithLogs.stream()
+    // add assertions with values retrieved from logs in tests
+    private List<CtMethod<?>> addAssertions(List<CtMethod<?>> testCases) {
+        Map<String, Observation> observations = ObjectLog.getObservations();
+        LOGGER.info("Generating assertions...");
+        return testCases.stream()
+                .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
+                .collect(Collectors.toList());
+    }
 
-                	//Optimization: Tracking cloned test methods using AmplificationHelper as candidates
-                	//for caching their associated Test Framework
-                        .map(CloneHelper::cloneMethod)
-                        .peek(ctMethod -> ctMethod.setSimpleName(ctMethod.getSimpleName() + i))
-                        .peek(clone::addMethod)
-                        .collect(Collectors.toList())
-        ));
-        ObjectLog.reset();
-
-        // compile and run tests with added logs
-        LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
-        TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
+    // compile and run tests with added logs
+    private List<Object> compileRunTests(CtType clone, final List<CtMethod<?>> testsToRun) {
         try {
             final TestResult result = TestCompiler.compileAndRun(
                     clone,
@@ -128,13 +111,49 @@ public class MethodsAssertGenerator {
             e.printStackTrace();
             return Collections.emptyList();
         }
+        return null;
+    }
 
-        // add assertions with values retrieved from logs in tests
-        Map<String, Observation> observations = ObjectLog.getObservations();
-        LOGGER.info("Generating assertions...");
+    // add logs in tests to observe state of tested program
+    private List<CtMethod<?>> addLogs(List<CtMethod<?>> testCases){
         return testCases.stream()
-                .map(ctMethod -> this.buildTestWithAssert(ctMethod, observations))
+                .map(ctMethod -> {
+                            DSpotUtils.printProgress(testCases.indexOf(ctMethod), testCases.size());
+                            return AssertGeneratorHelper.createTestWithLog(
+                                    ctMethod,
+                                    this.originalClass.getPackage().getQualifiedName(),
+                                    this.variableReadsAsserted.get(ctMethod)
+                            );
+                        }
+                ).filter(ctMethod -> !ctMethod.getBody().getStatements().isEmpty())
                 .collect(Collectors.toList());
+    }
+
+    private CtType two(CtType<?> testClass){
+        CtType clone = testClass.clone();
+        testClass.getPackage().addType(clone);
+        LOGGER.info("Add observations points in passing tests.");
+        LOGGER.info("Instrumentation...");
+        return clone;
+    }
+
+    // clone and set up tests with added logs
+    private List<CtMethod<?>> setupTests(List<CtMethod<?>> testCasesWithLogs, CtType clone){
+        final List<CtMethod<?>> testsToRun = new ArrayList<>();
+        IntStream.range(0, 3).forEach(i -> testsToRun.addAll(
+                testCasesWithLogs.stream()
+
+                        //Optimization: Tracking cloned test methods using AmplificationHelper as candidates
+                        //for caching their associated Test Framework
+                        .map(CloneHelper::cloneMethod)
+                        .peek(ctMethod -> ctMethod.setSimpleName(ctMethod.getSimpleName() + i))
+                        .peek(clone::addMethod)
+                        .collect(Collectors.toList())
+        ));
+        ObjectLog.reset();
+        LOGGER.info("Run instrumented tests. ({})", testsToRun.size());
+        TestFramework.get().generateAfterClassToSaveObservations(clone, testsToRun);
+        return testsToRun;
     }
 
     /**
