@@ -83,6 +83,7 @@ public class TestRunner {
 
     public static TestResult run(String classpath, String rootPath, String fullQualifiedName, String... testToRun) throws TimeoutException {
         if (InputConfiguration.get().shouldUseMavenToExecuteTest()) {
+            System.out.println("shouldUseMavenToExecuteTest");
             EntryPoint.workingDirectory = new File(rootPath);
             if (! (new File(rootPath + DSpotPOMCreator.getPOMName()).exists())) {
                 DSpotPOMCreator.createNewPom();
@@ -95,6 +96,10 @@ public class TestRunner {
                     testToRun
             );
         } else {
+            System.out.println("else, not shouldUseMavenToExecuteTest");
+            System.out.println(classpath);
+            System.out.println("fullQ:" + fullQualifiedName);
+            System.out.println("tests: " + testToRun);
             return EntryPoint.runTests(
                     classpath,
                     fullQualifiedName,

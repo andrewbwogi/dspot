@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * on 26/11/18
  */
 @RunWith(Parameterized.class)
-public class ParametrizedTestSuiteExample {
+public class Newtest {
 
     private String string;
 

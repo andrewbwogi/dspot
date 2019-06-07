@@ -91,11 +91,17 @@ public class TestCompiler {
                 + AmplificationHelper.PATH_SEPARATOR + DSpotUtils.getAbsolutePathToDSpotDependencies();
         DSpotUtils.copyPackageFromResources();
         testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, dependencies, testsToRun);
+        System.out.println("testsToRun");
+        for(CtMethod m : testsToRun) {
+            System.out.println(m);
+        }
         final String classPath = AmplificationHelper.getClassPath(compiler, configuration);
         EntryPoint.timeoutInMs = 1000 + (configuration.getTimeOutInMs() * testsToRun.size());
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) { // if the test class is abstract, we use one of its implementation
+            System.out.println("compileAndRun if");
             return TestRunner.runSubClassesForAbstractTestClass(testClass, testsToRun, classPath);
         } else {
+            System.out.println("compileAndRun else");
             return TestRunner.runGivenTestMethods(testClass, testsToRun, classPath);
         }
     }
