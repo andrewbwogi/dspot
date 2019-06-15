@@ -212,13 +212,13 @@ public class MethodsAssertGenerator {
                     // if statement to be asserted is an array, create a local variable
                     System.out.println("content of invocation: " + ((CtInvocation) assertStatement).getArguments().get(0).getClass());
                     System.out.println("class of statementToBeAsserted: " + statementToBeAsserted);
-                    if (((CtInvocation) assertStatement).getArguments().get(1) instanceof CtArrayTypeReferenceImpl &&
+                    /*if (((CtInvocation) assertStatement).getArguments().get(1) instanceof CtArrayTypeReferenceImpl &&
                             statementToBeAsserted.getParent() instanceof CtBlock) {
                         System.out.println("aaaaaaaaaaaaaaaa we have an array");
 
-                    }
+                    }*/
                     // if statement to be asserted is a method or constructor call, create a local variable
-                    else if (statementToBeAsserted instanceof CtInvocation &&
+                    if (statementToBeAsserted instanceof CtInvocation &&
                             !AssertGeneratorHelper.isVoidReturn((CtInvocation) statementToBeAsserted) &&
                             statementToBeAsserted.getParent() instanceof CtBlock) {
                         // todo debug

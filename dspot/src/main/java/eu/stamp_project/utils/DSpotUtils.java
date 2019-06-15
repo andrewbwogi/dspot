@@ -147,6 +147,13 @@ public class DSpotUtils {
             try {
                 InputStream stream = Thread.currentThread().getContextClassLoader()
                         .getResourceAsStream(PACKAGE_NAME + "/" + file + ".class");
+                //System.out.println(System.getProperty("user.dir"));
+                //System.out.println(PACKAGE_NAME + "/" + file + ".class");
+                //File currentDirFile = new File(PACKAGE_NAME + "/" + file + ".class");
+                //String helper = currentDirFile.getAbsolutePath();
+                //String currentDir = helper.substring(0, helper.length() - currentDirFile.getCanonicalPath().length());
+                //System.out.println(currentDir);
+                //System.out.println("classloader path: " + Thread.currentThread().getContextClassLoader().getResource(PACKAGE_NAME + "/" + file + ".class"));
                 // try this for Jenkins
                 if (stream == null) {
                     stream = DSpotUtils.class.getClassLoader()

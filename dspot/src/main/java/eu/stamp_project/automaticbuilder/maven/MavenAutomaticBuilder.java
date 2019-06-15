@@ -25,6 +25,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static java.nio.charset.Charset.forName;
+
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -48,14 +50,27 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
 
     @Override
     public String compileAndBuildClasspath() {
+        System.out.println("in maven automatic builder");
+        try {
+            FileUtils.writeStringToFile(new File("/home/andrew/Skrivbord/stamp/dspot/dspot/src/test/resources/test-projects2/target/dspot/dependencies/eu/stamp_project/compare/test.txt"), "before", forName("UTF-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (this.classpath == null) {
             this.runGoals(false,
+
                     "clean",
                     "test",
                     "-DskipTests",
                     "dependency:build-classpath",
                     "-Dmdep.outputFile=" + "target/dspot/classpath"
             );
+            System.out.println("tttttttt after run goals");
+            try {
+                FileUtils.writeStringToFile(new File("/home/andrew/Skrivbord/stamp/dspot/dspot/src/test/resources/test-projects2/target/dspot/dependencies/eu/stamp_project/compare/after.txt"), "after", forName("UTF-8"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             final File classpathFile = new File(InputConfiguration.get().getAbsolutePathToProjectRoot() + "/target/dspot/classpath");
             try (BufferedReader buffer = new BufferedReader(new FileReader(classpathFile))) {
                 this.classpath = buffer.lines().collect(Collectors.joining());
@@ -188,6 +203,8 @@ public class MavenAutomaticBuilder implements AutomaticBuilder {
             invoker.setOutputHandler(null);
             invoker.setErrorHandler(null);
         }
+        System.out.println("ttttttttttt before invoker.execute");
+
         try {
             return invoker.execute(request).getExitCode();
         } catch (MavenInvocationException e) {

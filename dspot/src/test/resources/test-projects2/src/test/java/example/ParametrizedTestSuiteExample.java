@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * on 26/11/18
  */
 @RunWith(Parameterized.class)
-public class Newtest {
+public class ParametrizedTestSuiteExample {
 
     private String string;
 
@@ -35,12 +35,75 @@ public class Newtest {
     }
 
     @org.junit.Test
-    public void test3() {
-        
-     
-	
+    public void test3() {     
+	Ob[] ao = new Ob[]{ new ObChild(1, 2,3), new Ob(1, 2),null };
+	Ob[] ao2 = new Ob[]{ new ObChild(1, 2,3), new Ob(1, 2),null };
+	org.junit.Assert.assertArrayEquals(ao, ao2);
 
-	Ob o = new Ob(1, 2);
+	ao[0].setB(3);
+        ao2[0].setB(3);
+        org.junit.Assert.assertEquals(ao, ao2);
+
+
+	ao[1].setB(3);
+        ao2[1].setB(3);
+        org.junit.Assert.assertEquals(ao, ao2);
+
+        
+    }
+
+}
+
+/*
+
+
+Ob[][][] ao = {{},
+                {{new Ob(1, 2),new Ob(1, 2),null},{}},
+                {{new Ob(1, 2)},null}};
+        Ob[][][] ao2 = {{},
+                {{new Ob(1, 2),new Ob(1, 2),null},{}},
+                {{new Ob(1, 2)},null}};
+	org.junit.Assert.assertArrayEquals(ao, ao2);
+
+	ao[1][0][0].setB(3);
+        ao2[1][0][0].setB(3);
+        org.junit.Assert.assertEquals(ao, ao2);
+
+
+	ao[1][0][1].setB(3);
+        ao2[1][0][1].setB(3);
+        org.junit.Assert.assertEquals(ao, ao2);
+
+
+
+
+Ob[] ao = {new Ob(1, 2),new Ob(1, 2),null};
+	Ob[] ao2 = {new Ob(1, 2),new Ob(1, 2),null};
+	org.junit.Assert.assertArrayEquals(ao, ao2);
+
+	ao[0].setB(3);
+        ao2[0].setB(3);
+        org.junit.Assert.assertEquals(ao, ao2);
+
+
+	ao[1].setB(3);
+        ao2[1].setB(3);
+        org.junit.Assert.assertEquals(ao, ao2);
+
+Ob[][] ao = {{new Ob(1, 2),new Ob(1, 2)},{new Ob(1, 2)}};
+	Ob[][] ao2 = {{new Ob(1, 2),new Ob(1, 2)},{new Ob(1, 2)}};
+	org.junit.Assert.assertArrayEquals(ao, ao2);
+
+	ao[0][1].setB(3);
+        ao2[0][1].setB(3);
+        org.junit.Assert.assertEquals(ao, ao2);
+
+
+	ao[1][0].setB(3);
+        ao2[1][0].setB(3);
+        org.junit.Assert.assertEquals(ao, ao2);
+
+Ob o = new Ob(1, 2);
 	Ob o2 = new Ob(1, 2);
 	org.junit.Assert.assertEquals(o, o2);
 
@@ -60,11 +123,8 @@ public class Newtest {
 	ao[1].setB(3);
         ao2[1].setB(3);
         org.junit.Assert.assertEquals(ao, ao2);
-    }
 
-}
 
-/*
 float[] f1 = {1.2F,4.5F};
         float[] f2 = {1.2F,4.5F};
         org.junit.Assert.assertArrayEquals(f1,f2,1e-9F);

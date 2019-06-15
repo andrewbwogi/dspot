@@ -12,11 +12,16 @@ import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.AmplificationHelper;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.nio.charset.Charset.forName;
 
 /**
  * Created by Benjamin DANGLOT
@@ -71,6 +76,7 @@ public class JSAPOptions {
             LOGGER.warn("You specified an invalid format. Forcing the Pit output format to XML.");
             consecutiveFormat = PitMutantScoreSelector.OutputFormat.XML;
         }
+        System.out.println("tttttttttttttt after pit output format");
 
         // expert test selector mode
         TestSelector testCriterion;
@@ -90,6 +96,7 @@ public class JSAPOptions {
                 originalFormat = PitMutantScoreSelector.OutputFormat.XML;
             }
             testCriterion = new PitMutantScoreSelector(jsapConfig.getString("mutant"), originalFormat, consecutiveFormat);
+            System.out.println("tttttttttttttttttttt after expert mode");
 
             // default test selector mode
         } else {
@@ -104,6 +111,7 @@ public class JSAPOptions {
             }
         }
 
+        System.out.println("tttttttttttttttt before value check");
         // these values need to be checked when the factory is available
         // We check them in DSpot class since we have the codes that allow to check them easily
         // and thus, the Factory will be created.
@@ -114,15 +122,24 @@ public class JSAPOptions {
         // we check the properties before initializing the InputConfiguration.
         final Properties properties = InputConfiguration.loadProperties(jsapConfig.getString("path-to-properties"));
         Checker.checkProperties(properties);
+        System.out.println("after checkProperties");
 
         InputConfiguration.initialize(properties, jsapConfig.getString("builder"));
+        System.out.println("ttttttttttttttttt after initialize");
+        try {
+            FileUtils.writeStringToFile(new File("/home/andrew/Skrivbord/stamp/dspot/dspot/src/test/resources/test-projects2/target/dspot/dependencies/eu/stamp_project/compare/init.txt"), "init", forName("UTF-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (InputConfiguration.get().getOutputDirectory().isEmpty()) {
             InputConfiguration.get().setOutputDirectory(jsapConfig.getString("output"));
         }
 
+        System.out.println("tttttttttttttttt before checkBinariesFolders");
         // we check now the binaries folders after the compilation
         Checker.checkBinariesFolders(properties);
 
+        System.out.println("tttttttttttttttt before inputGet");
         InputConfiguration.get()
                 .setAmplifiers(AmplifierEnum.buildAmplifiersFromString(amplifiers))
                 .setNbIteration(jsapConfig.getInt("iteration"))
@@ -143,6 +160,7 @@ public class JSAPOptions {
                 .setDescartesMode(jsapConfig.getBoolean("descartes") && !jsapConfig.getBoolean("gregor"))
                 .setUseMavenToExecuteTest(jsapConfig.getBoolean("use-maven-to-exe-test"))
                 .setTargetOneTestClass(jsapConfig.getBoolean("targetOneTestClass"));
+        System.out.println("ttttttttttttt after inputGet");
         return false;
     }
 

@@ -274,9 +274,14 @@ public class ObjectLog {
                         System.out.println("in observeNotNullObject else");
                         String nameOfVisibleClass = getVisibleClass(currentObservedClass);
                         StringBuilder sb = new StringBuilder();
+                        StringBuilder sb2 = new StringBuilder();
                         for(int i = 0; i<al.size();i++){
                             sb.append("[" + al.get(i) + "]");
+                            sb2.append("[]");
                         }
+                        System.out.println("nameOfVisibleClass: " + nameOfVisibleClass);
+                        System.out.println("stringObject: " + stringObject);
+                        nameOfVisibleClass = nameOfVisibleClass.substring(0,(nameOfVisibleClass.length()-1)) + sb2.toString() + ")";
                         _log(startingObject,
                                 result,
                                 method.getReturnType(),
@@ -302,7 +307,19 @@ public class ObjectLog {
         for (int i = 0; i < size; i++) {
             al.set(depth,i);
             Object value = Array.get(obj, i);
-            if (value.getClass().isArray()) {
+            if(value == null){
+                StringBuilder sb = new StringBuilder();
+                StringBuilder sb2 = new StringBuilder();
+                for(int j = 0; j<al.size();j++){
+                    sb.append("[" + al.get(j) + "]");
+                    sb2.append("[]");
+                }
+                String nameOfVisibleClass = getVisibleClass(currentObservedClass);
+                nameOfVisibleClass = nameOfVisibleClass.substring(0,(nameOfVisibleClass.length()-1)) + sb2.toString() + ")";
+                String typeName = "(" + nameOfVisibleClass + stringObject + ")" + sb.toString();
+                addObservation(id, typeName, null);
+            }
+            else if (value.getClass().isArray()) {
                 goThroughArray(value,
                         currentObservedClass,
                         stringObject,
@@ -360,24 +377,27 @@ public class ObjectLog {
     private static final String OBSERVATIONS_PATH_FILE_NAME = "target/dspot/observations.ser";
 
     public static void save() {
-        getSingleton().observations.values().forEach(Observation::purify);
         StringBuilder sb = new StringBuilder();
+
+        for(String o : getSingleton().observations.keySet()) {
+            System.out.println(o);
+            sb.append("\n" + o);
+        }
+        for(Observation o : getSingleton().observations.values()) {
+            for(String s : o.getObservationValues().keySet()){
+                System.out.println(s);
+                sb.append("\n" + s);
+                System.out.println(o.getObservationValues().get(s));
+                sb.append("\n" + o.getObservationValues().get(s));
+            }
+            System.out.println(o);
+            sb.append("\n" + o);
+        }
+
+        getSingleton().observations.values().forEach(Observation::purify);
         try (FileOutputStream fout = new FileOutputStream(OBSERVATIONS_PATH_FILE_NAME)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(fout)) {
-                for(String o : getSingleton().observations.keySet()) {
-                    System.out.println(o);
-                    sb.append("\n" + o);
-                }
-                for(Observation o : getSingleton().observations.values()) {
-                    for(String s : o.getObservationValues().keySet()){
-                        System.out.println(s);
-                        sb.append("\n" + s);
-                        System.out.println(o.getObservationValues().get(s));
-                        sb.append("\n" + o.getObservationValues().get(s));
-                    }
-                    System.out.println(o);
-                    sb.append("\n" + o);
-                }
+
                 FileUtils.writeStringToFile(new File("/home/andrew/Skrivbord/test.txt"), sb.toString(), forName("UTF-8"));
                 oos.writeObject(getSingleton().observations);
                 System.out.println(

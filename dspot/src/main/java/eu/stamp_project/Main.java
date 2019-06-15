@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import static java.nio.charset.Charset.forName;
+
 /**
  * Created by Benjamin DANGLOT benjamin.danglot@inria.fr on 2/9/17
  */
@@ -29,12 +31,19 @@ public class Main {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
 	public static void main(String[] args) {
+		System.out.println("ttttttttttttttttttt in Main");
 		try {
 			FileUtils.forceDelete(new File("target/dspot/"));
 		} catch (Exception ignored) {
 
 		}
 		final boolean shouldRunExample = JSAPOptions.parse(args);
+		System.out.println("ttttttttttttttttttt after Parse");
+		try {
+			FileUtils.writeStringToFile(new File("/home/andrew/Skrivbord/stamp/dspot/dspot/src/test/resources/test-projects2/target/dspot/dependencies/eu/stamp_project/compare/parse.txt"), "parse", forName("UTF-8"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		if (shouldRunExample) {
 			Main.runExample();
 		} else {
@@ -53,11 +62,14 @@ public class Main {
 		);
 		RandomHelper.setSeedRandom(InputConfiguration.get().getSeed());
 		createOutputDirectories();
+		System.out.println("ttttttttttttttttt \t\tcreateOutputDirectories();");
 		final long startTime = System.currentTimeMillis();
 		final List<CtType<?>> amplifiedTestClasses;
 		if (InputConfiguration.get().getTestClasses().isEmpty() || "all".equals(InputConfiguration.get().getTestClasses().get(0))) {
+			System.out.println("in if");
 			amplifiedTestClasses = dspot.amplifyAllTests();
 		} else {
+			System.out.println("in else");
 			amplifiedTestClasses = dspot.amplifyTestClassesTestMethods(InputConfiguration.get().getTestClasses(), InputConfiguration.get().getTestCases());
 		}
 		LOGGER.info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");

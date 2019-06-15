@@ -133,25 +133,67 @@ public class TempTest {
         eu.stamp_project.compare.ObjectLog.save();
     }
 */
+/*
+    @org.junit.Test(timeout = 10000)
+    public void test3() throws java.lang.Exception {
+        Ob o = new Ob(1, 2);
+        // AssertGenerator add assertion
+        org.junit.Assert.assertEquals(2, ((Ob)o).getB());
+        Ob o2 = new Ob(1, 2);
+        // AssertGenerator add assertion
+        org.junit.Assert.assertEquals(2, ((Ob)o2).getB());
+        o.setB(3);
+        o2.setB(3);
+        Ob[] ao = new Ob[]{ new Ob(1, 2), new Ob(1, 2) };
+        // AssertGenerator add assertion
+        org.junit.Assert.assertEquals(2, ((Ob[])ao)[0].getB());
+        // AssertGenerator add assertion
+        org.junit.Assert.assertEquals(2, ((Ob[])ao)[1].getB());
+        Ob[] ao2 = new Ob[]{ new Ob(1, 2), new Ob(1, 2) };
+        // AssertGenerator add assertion
+        org.junit.Assert.assertEquals(2, ((Ob[])ao2)[0].getB());
+        // AssertGenerator add assertion
+        org.junit.Assert.assertEquals(2, ((Ob[])ao2)[1].getB());
+        ao[0].setB(3);
+        ao2[0].setB(3);
+        ao[1].setB(3);
+        ao2[1].setB(3);
+        // AssertGenerator add assertion
+        org.junit.Assert.assertEquals(3, ((Ob)o).getB());
+        // AssertGenerator add assertion
+        org.junit.Assert.assertEquals(3, ((Ob)o2).getB());
+        // AssertGenerator add assertion
+        org.junit.Assert.assertEquals(3, ((Ob[])ao)[0].getB());
+        // AssertGenerator add assertion
+        org.junit.Assert.assertEquals(3, ((Ob[])ao)[1].getB());
+        // AssertGenerator add assertion
+        org.junit.Assert.assertEquals(3, ((Ob[])ao2)[0].getB());
+        // AssertGenerator add assertion
+        org.junit.Assert.assertEquals(3, ((Ob[])ao2)[1].getB());
+    }*/
 
     @org.junit.Test(timeout = 10000)
     public void test3_withlog2() throws java.lang.Exception {
-        Ob o = new Ob(1, 2);
+        /*Ob o = new Ob(1, 2);
         eu.stamp_project.compare.ObjectLog.log(o, "o", "test3__1");
         Ob o2 = new Ob(1, 2);
         eu.stamp_project.compare.ObjectLog.log(o2, "o2", "test3__3");
         o.setB(3);
         o2.setB(3);
-        Ob[] ao = new Ob[]{ new Ob(1, 2), new Ob(1, 2) };
+        */
+
+
+        Ob[] ao = new Ob[]{ new ObChild(1, 2,3), new Ob(1, 2),null };
         eu.stamp_project.compare.ObjectLog.log(ao, "ao", "test3__7");
-        Ob[] ao2 = new Ob[]{ new Ob(1, 2), new Ob(1, 2) };
+        Ob[] ao2 = new Ob[]{ new Ob(1, 2), new Ob(1, 2),null };
+
         eu.stamp_project.compare.ObjectLog.log(ao2, "ao2", "test3__10");
         ao[0].setB(3);
         ao2[0].setB(3);
         ao[1].setB(3);
         ao2[1].setB(3);
-        eu.stamp_project.compare.ObjectLog.log(o, "o", "test3__1___end");
-        eu.stamp_project.compare.ObjectLog.log(o2, "o2", "test3__3___end");
+        //eu.stamp_project.compare.ObjectLog.log(o, "o", "test3__1___end");
+        //eu.stamp_project.compare.ObjectLog.log(o2, "o2", "test3__3___end");
         eu.stamp_project.compare.ObjectLog.log(ao, "ao", "test3__7___end");
         eu.stamp_project.compare.ObjectLog.log(ao2, "ao2", "test3__10___end");
     }

@@ -150,6 +150,7 @@ public class InputConfiguration {
         InputConfiguration.instance = new InputConfiguration(properties);
         InputConfiguration.instance.configPath = "";
         final String builderNameProperties = ConstantsProperties.AUTOMATIC_BUILDER_NAME.get(properties);
+        System.out.println("tttttttttt before all if else");
         if (builderName.isEmpty() && builderNameProperties.isEmpty()) {
             LOGGER.warn("No builder has been specified.");
             LOGGER.warn("Using Maven as a default builder.");
@@ -167,7 +168,9 @@ public class InputConfiguration {
             LOGGER.warn("Using the value gave on the command-line {}", builderName);
             InputConfiguration.instance.setBuilderName(builderName);
         }
+        System.out.println("tttttttttt after all if else");
         InputConfiguration.instance.initializeBuilder(properties);
+        System.out.println("tttttttttttttt after initializeBuilder");
         return InputConfiguration.instance;
     }
 
@@ -216,7 +219,9 @@ public class InputConfiguration {
     private void initializeBuilder(Properties properties) {
         this.setMavenHome(ConstantsProperties.MAVEN_HOME.get(properties));
         this.builder = AutomaticBuilderFactory.getAutomaticBuilder(this.getBuilderName());
+        System.out.println("ttttttt before compileAndBuildClasspath");
         this.dependencies = this.builder.compileAndBuildClasspath();
+        System.out.println("ttttttttt after compileAndBuildClasspath");
 
         // TODO checks this. Since we support different Test Support, we may not need to add artificially junit in the classpath
         if (!this.dependencies.contains("junit" + File.separator + "junit" + File.separator + "4")) {

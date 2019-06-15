@@ -1,6 +1,6 @@
 package example;
 
-public class NewExample {
+public class Example {
 
 	/*
 	 * Return the index char of s 
@@ -18,7 +18,7 @@ public class NewExample {
 		return s.charAt(s.length()-1);
 	}
 	
-	public NewExample() {
+	public Example() {
 		int variableInsideConstructor;
 		variableInsideConstructor = 15; 
 		index = 2 * variableInsideConstructor;

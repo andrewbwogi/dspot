@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
+import static java.nio.charset.Charset.forName;
 
 /**
  * Created by Benjamin DANGLOT
@@ -60,6 +61,12 @@ public class DSpotCompiler extends JDTBasedSpoonCompiler {
 	}
 
 	public boolean compile(String pathToAdditionalDependencies) {
+		System.out.println("tttttttttttttttt in DSpotCompiler");
+		try {
+			FileUtils.writeStringToFile(new File("/home/andrew/Skrivbord/stamp/dspot/dspot/src/test/resources/test-projects2/target/dspot/dependencies/eu/stamp_project/compare/compiler.txt"), "compiler", forName("UTF-8"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		if (this.factory == null) {
 			this.factory = this.launcher.getFactory();
 		}
