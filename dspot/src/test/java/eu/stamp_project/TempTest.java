@@ -184,6 +184,9 @@ public class TempTest {
 
 
         Ob[] ao = new Ob[]{ new ObChild(1, 2,3), new Ob(1, 2),null };
+
+        System.out.println(ao[0].getClass());
+
         eu.stamp_project.compare.ObjectLog.log(ao, "ao", "test3__7");
         Ob[] ao2 = new Ob[]{ new Ob(1, 2), new Ob(1, 2),null };
 

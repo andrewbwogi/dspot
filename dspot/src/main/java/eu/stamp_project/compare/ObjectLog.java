@@ -262,7 +262,7 @@ public class ObjectLog {
         System.out.println("in observeNotNullObject first line");
         System.out.println("currentObservedClass: " + currentObservedClass);
         try {
-            for (Method method : methodsHandler.getAllMethods(currentObservedClass)) {
+            for (Method method : methodsHandler.getAllMethods(startingObject.getClass())) {
                 System.out.println("in observeNotNullObject for");
                 try {
                     final ArrayList<Method> tmpListOfMethodsToReachCurrentObject = new ArrayList<>(methodsToReachCurrentObject);
@@ -272,7 +272,8 @@ public class ObjectLog {
                         // todo is this relevant for reference type arrays?
                     } else {
                         System.out.println("in observeNotNullObject else");
-                        String nameOfVisibleClass = getVisibleClass(currentObservedClass);
+                        //String nameOfVisibleClass = getVisibleClass(currentObservedClass);
+                        String nameOfVisibleClass = getVisibleClass(startingObject.getClass());
                         StringBuilder sb = new StringBuilder();
                         StringBuilder sb2 = new StringBuilder();
                         for(int i = 0; i<al.size();i++){
@@ -315,6 +316,7 @@ public class ObjectLog {
                     sb2.append("[]");
                 }
                 String nameOfVisibleClass = getVisibleClass(currentObservedClass);
+                //String nameOfVisibleClass = getVisibleClass(obj.getClass());
                 nameOfVisibleClass = nameOfVisibleClass.substring(0,(nameOfVisibleClass.length()-1)) + sb2.toString() + ")";
                 String typeName = "(" + nameOfVisibleClass + stringObject + ")" + sb.toString();
                 addObservation(id, typeName, null);
