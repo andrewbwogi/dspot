@@ -63,8 +63,13 @@ public class AssertBuilder {
         for (String observationKey : observations.keySet()) {
             if (!notDeterministValues.contains(observationKey)) {
                 Object value = observations.get(observationKey);
-                //final CtExpression variableRead = translator.translate(observationKey);
-                final CtExpression variableRead = factory.createCodeSnippetExpression(observationKey);
+                final CtExpression variableRead;
+                if(observationKey.contains("[")){
+                    variableRead = factory.createCodeSnippetExpression(observationKey);
+                }
+                else {
+                    variableRead = translator.translate(observationKey);
+                }
                 if (value == null) {
                     // todo debug
                     System.out.println("in value is null");
