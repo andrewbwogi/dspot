@@ -35,7 +35,20 @@ public class ParametrizedTestSuiteExample {
     }
 
     @org.junit.Test
-    public void test3() {     
+    public void test3() {  
+
+Ob o = new Ob(1, 2);
+	Ob o2 = new Ob(1, 2);
+	org.junit.Assert.assertEquals(o, o2);
+
+	o.setB(3);
+        o2.setB(3);
+        org.junit.Assert.assertEquals(o, o2);
+
+int i = 2;
+	int i2 = 2;
+	org.junit.Assert.assertEquals(i2, i);
+   
 	Ob[] ao = new Ob[]{ new ObChild(1, 2,3), new Ob(1, 2),null };
 	Ob[] ao2 = new Ob[]{ new ObChild(1, 2,3), new Ob(1, 2),null };
 	org.junit.Assert.assertArrayEquals(ao, ao2);
