@@ -1,5 +1,7 @@
-package eu.stamp_project.dspot.assertgenerator;
+package eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor;
 
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.syntaxbuilder.AggregateTypeBuilder;
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.syntaxbuilder.Translator;
 import eu.stamp_project.test_framework.assertions.AssertEnum;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.TypeUtils;
@@ -14,6 +16,9 @@ import spoon.reflect.declaration.*;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtFieldReference;
+
+import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,7 +35,7 @@ import java.util.stream.Collectors;
  * benjamin.danglot@inria.fr
  * on 3/17/17
  */
-public class AssertBuilder {
+public class SyntaxBuilder {
 
     public static final int MAX_NUMBER_OF_CHECKED_ELEMENT_IN_LIST = 5;
 
@@ -38,7 +43,7 @@ public class AssertBuilder {
             value instanceof Double || value.getClass() == double.class ||
                     value instanceof Float || value.getClass() == float.class;
 
-    static List<CtStatement> buildAssert(CtMethod<?> testMethod,
+    public static List<CtStatement> buildAssert(CtMethod<?> testMethod,
                                          Set<String> notDeterministValues,
                                          Map<String, Object> observations,
                                          Double delta) {
@@ -128,7 +133,7 @@ public class AssertBuilder {
                                             )));
                         } else {
                             if (value instanceof String) {
-                                if (AssertGeneratorHelper.canGenerateAnAssertionFor((String) value)) {
+                                if (canGenerateAnAssertionFor((String) value)) {
                                     invocations.add(TestFramework.get().buildInvocationToAssertion(testMethod, AssertEnum.ASSERT_EQUALS,
                                             Arrays.asList(printPrimitiveString(factory, value),
                                                     variableRead)));
@@ -303,5 +308,40 @@ public class AssertBuilder {
                                         return false;
                                     }
                                 }));
+    }
+
+    public static boolean canGenerateAnAssertionFor(String candidate) {
+        return !containsObjectReferences(candidate) &&
+                (InputConfiguration.get().shouldAllowPathInAssertion() || !containsAPath(candidate));
+    }
+
+    public static boolean containsAPath(String candidate) {
+        if (candidate == null) {
+            return false;
+        }
+        if (new File(candidate).exists()) {
+            return true;
+        }
+
+        String[] split = candidate.split(" ");
+        final Pattern pattern = Pattern.compile(".*((.*/)+).*");
+        for (String s : split) {
+            if (s.length() < 4096 &&
+                    pattern.matcher(s).matches()) {
+                return true;
+            }
+        }
+
+        try {
+            new URL(candidate);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean containsObjectReferences(String candidate) {
+        return candidate != null &&
+                Pattern.compile("(\\w+\\.)*\\w@[a-f0-9]+").matcher(candidate).find();
     }
 }

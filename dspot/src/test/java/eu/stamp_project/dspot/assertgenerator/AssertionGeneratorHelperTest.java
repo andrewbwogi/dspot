@@ -1,8 +1,10 @@
 package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
 import eu.stamp_project.dspot.amplifier.MethodGeneratorAmplifier;
+import eu.stamp_project.dspot.assertgenerator.components.testmethodreconstructor.SyntaxBuilder;
+import eu.stamp_project.dspot.assertgenerator.components.utils.Utils;
+import eu.stamp_project.dspot.assertgenerator.components.AssertionRemover;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -28,29 +30,29 @@ import static org.junit.Assert.assertTrue;
  * benjamin.danglot@inria.fr
  * on 12/06/17
  */
-public class AssertGeneratorHelperTest extends AbstractTest {
+public class AssertionGeneratorHelperTest extends AbstractTest {
 
     @Test
     public void testCanGenerateAssertionFor() {
-        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("yes/no"));
+        assertFalse(SyntaxBuilder.canGenerateAnAssertionFor("yes/no"));
 
-        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot()));
-        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot() + " is a directory"));
-        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("This is not a path"));
+        assertFalse(SyntaxBuilder.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot()));
+        assertFalse(SyntaxBuilder.canGenerateAnAssertionFor(InputConfiguration.get().getAbsolutePathToProjectRoot() + " is a directory"));
+        assertTrue(SyntaxBuilder.canGenerateAnAssertionFor("This is not a path"));
 
-        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("thaliana"));
-        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("thaliana.thaliana@"));
-        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("thaliana.thaliana$f465"));
-        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("thaliana.thaliana@z0545"));
-        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("thaliana@041a"));
-        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("thaliana.thaliana@041a"));
-        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(new Object().toString()));
-        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("Expected message : " + new Object().toString() + "not found"));
-        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor("Expected message : " + new Object().toString()));
-        assertFalse(AssertGeneratorHelper.canGenerateAnAssertionFor(new Object().toString() + "not found"));
+        assertTrue(SyntaxBuilder.canGenerateAnAssertionFor("thaliana"));
+        assertTrue(SyntaxBuilder.canGenerateAnAssertionFor("thaliana.thaliana@"));
+        assertTrue(SyntaxBuilder.canGenerateAnAssertionFor("thaliana.thaliana$f465"));
+        assertTrue(SyntaxBuilder.canGenerateAnAssertionFor("thaliana.thaliana@z0545"));
+        assertFalse(SyntaxBuilder.canGenerateAnAssertionFor("thaliana@041a"));
+        assertFalse(SyntaxBuilder.canGenerateAnAssertionFor("thaliana.thaliana@041a"));
+        assertFalse(SyntaxBuilder.canGenerateAnAssertionFor(new Object().toString()));
+        assertFalse(SyntaxBuilder.canGenerateAnAssertionFor("Expected message : " + new Object().toString() + "not found"));
+        assertFalse(SyntaxBuilder.canGenerateAnAssertionFor("Expected message : " + new Object().toString()));
+        assertFalse(SyntaxBuilder.canGenerateAnAssertionFor(new Object().toString() + "not found"));
 
         InputConfiguration.get().setAllowPathInAssertion(true);
-        assertTrue(AssertGeneratorHelper.canGenerateAnAssertionFor("yes/no"));
+        assertTrue(SyntaxBuilder.canGenerateAnAssertionFor("yes/no"));
     }
 
     @Test
@@ -60,10 +62,10 @@ public class AssertGeneratorHelperTest extends AbstractTest {
             Test the method to check if a string contains a path
          */
 
-        assertTrue(AssertGeneratorHelper.containsAPath(InputConfiguration.get().getAbsolutePathToProjectRoot()));
-        assertTrue(AssertGeneratorHelper.containsAPath("yes/no"));
-        assertTrue(AssertGeneratorHelper.containsAPath(InputConfiguration.get().getAbsolutePathToProjectRoot() + " is a directory"));
-        assertFalse(AssertGeneratorHelper.containsAPath("This is not a path"));
+        assertTrue(SyntaxBuilder.containsAPath(InputConfiguration.get().getAbsolutePathToProjectRoot()));
+        assertTrue(SyntaxBuilder.containsAPath("yes/no"));
+        assertTrue(SyntaxBuilder.containsAPath(InputConfiguration.get().getAbsolutePathToProjectRoot() + " is a directory"));
+        assertFalse(SyntaxBuilder.containsAPath("This is not a path"));
     }
 
     @Test
@@ -79,17 +81,17 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         final CtClass<?> myClassWithSpecificReturnType = factory.Class().get("fr.inria.ClassWithSpecificReturnType");
         final CtMethod<?> tryGetters = myClassWithSpecificReturnType.getMethodsByName("tryGetters").get(0);
         final List<CtInvocation> invocations = tryGetters.getElements(new TypeFilter<>(CtInvocation.class));
-        CtTypeReference correctTypeOfInvocation = AssertGeneratorHelper.getCorrectTypeOfInvocation(invocations.get(0));
+        CtTypeReference correctTypeOfInvocation = Utils.getCorrectTypeOfInvocation(invocations.get(0));
         assertEquals("doest not have the correct type",
                 "fr.inria.ClassWithSpecificReturnType.Element<?>",
                 correctTypeOfInvocation.toString()
         );
-        correctTypeOfInvocation = AssertGeneratorHelper.getCorrectTypeOfInvocation(invocations.get(1));
+        correctTypeOfInvocation = Utils.getCorrectTypeOfInvocation(invocations.get(1));
         /*assertEquals("doest not have the correct type",
                 "fr.inria.ClassWithSpecificReturnType.Element",
                 correctTypeOfInvocation.toString()
         );*/
-        correctTypeOfInvocation = AssertGeneratorHelper.getCorrectTypeOfInvocation(invocations.get(2));
+        correctTypeOfInvocation = Utils.getCorrectTypeOfInvocation(invocations.get(2));
         assertEquals("doest not have the correct type",
                 "fr.inria.ClassWithSpecificReturnType.Element<java.lang.String>",
                 correctTypeOfInvocation.toString()
@@ -98,16 +100,16 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 
     @Test
     public void testContainsObjectReferences() throws Exception {
-        assertFalse(AssertGeneratorHelper.containsObjectReferences("thaliana"));
-        assertFalse(AssertGeneratorHelper.containsObjectReferences("thaliana.thaliana@"));
-        assertFalse(AssertGeneratorHelper.containsObjectReferences("thaliana.thaliana$f465"));
-        assertFalse(AssertGeneratorHelper.containsObjectReferences("thaliana.thaliana@z0545"));
-        assertTrue(AssertGeneratorHelper.containsObjectReferences("thaliana@041a"));
-        assertTrue(AssertGeneratorHelper.containsObjectReferences("thaliana.thaliana@041a"));
-        assertTrue(AssertGeneratorHelper.containsObjectReferences(new Object().toString()));
-        assertTrue(AssertGeneratorHelper.containsObjectReferences("Expected message : " + new Object().toString() + "not found"));
-        assertTrue(AssertGeneratorHelper.containsObjectReferences("Expected message : " + new Object().toString()));
-        assertTrue(AssertGeneratorHelper.containsObjectReferences(new Object().toString() + "not found"));
+        assertFalse(SyntaxBuilder.containsObjectReferences("thaliana"));
+        assertFalse(SyntaxBuilder.containsObjectReferences("thaliana.thaliana@"));
+        assertFalse(SyntaxBuilder.containsObjectReferences("thaliana.thaliana$f465"));
+        assertFalse(SyntaxBuilder.containsObjectReferences("thaliana.thaliana@z0545"));
+        assertTrue(SyntaxBuilder.containsObjectReferences("thaliana@041a"));
+        assertTrue(SyntaxBuilder.containsObjectReferences("thaliana.thaliana@041a"));
+        assertTrue(SyntaxBuilder.containsObjectReferences(new Object().toString()));
+        assertTrue(SyntaxBuilder.containsObjectReferences("Expected message : " + new Object().toString() + "not found"));
+        assertTrue(SyntaxBuilder.containsObjectReferences("Expected message : " + new Object().toString()));
+        assertTrue(SyntaxBuilder.containsObjectReferences(new Object().toString() + "not found"));
     }
 
     @Test
@@ -119,7 +121,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
                 2 - it adds at the end of the existing method an invocation to save() of ObjectLog
          */
 
-        final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithLoop");
+        final CtClass<?> testClass = eu.stamp_project.Utils.findClass("fr.inria.sample.TestClassWithLoop");
         assertFalse(testClass.getMethods()
                 .stream()
                 .anyMatch(method ->
@@ -130,7 +132,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
                                 )
                 ));
 
-        TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(Utils.findMethod(testClass, "test")));
+        TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(eu.stamp_project.Utils.findMethod(testClass, "test")));
         final CtMethod<?> afterClassMethod = testClass.getMethods()
                 .stream()
                 .filter(method ->
@@ -150,7 +152,7 @@ public class AssertGeneratorHelperTest extends AbstractTest {
                         statement.toString().endsWith("ObjectLog.save()")
                 )
         );
-        TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(Utils.findMethod(testClass, "test")));
+        TestFramework.get().generateAfterClassToSaveObservations(testClass, Collections.singletonList(eu.stamp_project.Utils.findMethod(testClass, "test")));
         assertTrue(afterClassMethod.getBody()
                 .getStatements()
                 .stream()
@@ -190,8 +192,8 @@ public class AssertGeneratorHelperTest extends AbstractTest {
                         "    eu.stamp_project.compare.ObjectLog.log(o_test2__5, \"o_test2__5\", \"test2__5___end\");" + AmplificationHelper.LINE_SEPARATOR +
                         "    eu.stamp_project.compare.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7___end\");" + AmplificationHelper.LINE_SEPARATOR +
                         "}",
-                AssertGeneratorHelper.createTestWithLog(
-                        new AssertionRemover().removeAssertion(Utils.findMethod("fr.inria.sample.TestClassWithLoop", "test2")),
+                Utils.createTestWithLog(
+                        new AssertionRemover().removeAssertion(eu.stamp_project.Utils.findMethod("fr.inria.sample.TestClassWithLoop", "test2")),
                         "fr.inria.sample",
                         Collections.emptyList()).toString()
         );
@@ -209,17 +211,17 @@ public class AssertGeneratorHelperTest extends AbstractTest {
          */
 
         final String packageName = "fr.inria.statementaddarray";
-        final Factory factory = Utils.getFactory();
+        final Factory factory = eu.stamp_project.Utils.getFactory();
         MethodGeneratorAmplifier amplifier = new MethodGeneratorAmplifier();
         amplifier.reset(factory.Class().get(packageName + ".ClassTargetAmplify"));
 
-        CtMethod<?> ctMethod = Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
+        CtMethod<?> ctMethod = eu.stamp_project.Utils.findMethod(factory.Class().get(packageName + ".TestClassTargetAmplify"), "test");
         List<CtMethod> amplifiedMethods = amplifier.amplify(ctMethod, 0).collect(Collectors.toList());
 
         assertEquals(4, amplifiedMethods.size());
 
         final List<CtMethod<?>> instrumentedAmplifiedTests = amplifiedMethods.stream()
-                .map(method -> AssertGeneratorHelper.createTestWithLog(method, "fr.inria.statementaddarray", Collections.emptyList()))
+                .map(method -> Utils.createTestWithLog(method, "fr.inria.statementaddarray", Collections.emptyList()))
                 .collect(Collectors.toList());
 
         assertEquals(4, instrumentedAmplifiedTests.size());
@@ -240,9 +242,9 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 
     @Test
     public void testMultipleObservationsPoints() throws Exception {
-        final CtMethod<?> test1 = Utils.findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
+        final CtMethod<?> test1 = eu.stamp_project.Utils.findMethod("fr.inria.multipleobservations.TestClassToBeTest", "test");
         final CtMethod<?> testWithLog =
-                AssertGeneratorHelper.createTestWithLog(test1, "fr.inria.multipleobservations", Collections.emptyList());
+                Utils.createTestWithLog(test1, "fr.inria.multipleobservations", Collections.emptyList());
         final String expectedMethodWithLogs = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    final fr.inria.multipleobservations.ClassToBeTest classToBeTest = new fr.inria.multipleobservations.ClassToBeTest();" + AmplificationHelper.LINE_SEPARATOR +
@@ -255,9 +257,9 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 
     @Test
     public void testCreateTestWithLogClassTargetAmplify() throws Exception {
-        final CtMethod<?> test1 = Utils.findMethod("fr.inria.statementaddarray.TestClassTargetAmplify", "test");
+        final CtMethod<?> test1 = eu.stamp_project.Utils.findMethod("fr.inria.statementaddarray.TestClassTargetAmplify", "test");
         final CtMethod<?> testWithLog =
-                AssertGeneratorHelper.createTestWithLog(test1, "fr.inria.statementaddarray", Collections.emptyList());
+                Utils.createTestWithLog(test1, "fr.inria.statementaddarray", Collections.emptyList());
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    fr.inria.statementaddarray.ClassTargetAmplify clazz = new fr.inria.statementaddarray.ClassTargetAmplify();" + AmplificationHelper.LINE_SEPARATOR +
@@ -275,10 +277,10 @@ public class AssertGeneratorHelperTest extends AbstractTest {
             test the creation of test with log
          */
 
-        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
+        CtClass testClass = eu.stamp_project.Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("test1").get(0);
         final CtMethod<?> testWithLog =
-                AssertGeneratorHelper.createTestWithLog(test1, "fr.inria.sample", Collections.emptyList());
+                Utils.createTestWithLog(test1, "fr.inria.sample", Collections.emptyList());
 
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test1_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
@@ -295,9 +297,9 @@ public class AssertGeneratorHelperTest extends AbstractTest {
 
     @Test
     public void testCreateTestWithLogWithoutChainSameObservations() throws Exception {
-        CtMethod test1 = Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
+        CtMethod test1 = eu.stamp_project.Utils.findMethod("fr.inria.sample.TestClassWithSpecificCaseToBeAsserted", "test1");
         final CtMethod<?> testWithLog =
-                AssertGeneratorHelper.createTestWithLog(test1, "fr.inria.sample", Collections.emptyList());
+                Utils.createTestWithLog(test1, "fr.inria.sample", Collections.emptyList());
 
         final String expectedMethodWithLog = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test1_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
@@ -319,10 +321,10 @@ public class AssertGeneratorHelperTest extends AbstractTest {
         /*
             test the creation of log with duplicates statement
 		 */
-        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
+        CtClass testClass = eu.stamp_project.Utils.findClass("fr.inria.sample.TestClassWithoutAssert");
         final CtMethod<?> test2 = (CtMethod<?>) testClass.getMethodsByName("test2").get(0);
         final CtMethod<?> testWithLog =
-                AssertGeneratorHelper.createTestWithLog(test2, "fr.inria.sample", Collections.emptyList());
+                Utils.createTestWithLog(test2, "fr.inria.sample", Collections.emptyList());
 
         final String expectedMethod = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test2_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +

@@ -1,7 +1,8 @@
 package eu.stamp_project.dspot.assertgenerator;
 
 import eu.stamp_project.AbstractTest;
-import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.assertgenerator.components.utils.Utils;
+import eu.stamp_project.dspot.assertgenerator.components.AssertionRemover;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import org.junit.BeforeClass;
@@ -30,7 +31,7 @@ public class AssertionRemoverTest extends AbstractTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        Utils.reset();
+        eu.stamp_project.Utils.reset();
     }
 
     @Test
@@ -41,7 +42,7 @@ public class AssertionRemoverTest extends AbstractTest {
                 org.junit.jupiter.api.Assertions.assertTrue(((myApp.getMyAppSystemInformation(true)) != null), () -> "App should return some info")
          */
 
-        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        CtClass testClass = eu.stamp_project.Utils.findClass("fr.inria.sample.TestClassWithAssert");
         final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("testWithALambdaWithNullBody").get(0);
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> ctMethod = assertionRemover.removeAssertion(test1);
@@ -63,12 +64,12 @@ public class AssertionRemoverTest extends AbstractTest {
                 log(new MyObject().toString())
          */
 
-        CtClass testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        CtClass testClass = eu.stamp_project.Utils.findClass("fr.inria.sample.TestClassWithAssert");
         final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("testWithNewSomethingWithoutLocalVariables").get(0);
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> ctMethod = assertionRemover.removeAssertion(test1);
         final CtMethod<?> testWithLog =
-                AssertGeneratorHelper.createTestWithLog(ctMethod, "fr.inria.sample", Collections.emptyList());
+                Utils.createTestWithLog(ctMethod, "fr.inria.sample", Collections.emptyList());
         assertEquals("@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void testWithNewSomethingWithoutLocalVariables_withlog() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    java.lang.String o_testWithNewSomethingWithoutLocalVariables__1 = new fr.inria.sample.ClassWithBoolean().toString();" + AmplificationHelper.LINE_SEPARATOR +
@@ -86,8 +87,8 @@ public class AssertionRemoverTest extends AbstractTest {
                 TODO however, we consider developers that makes such invocations
                 TODO should be aware that the oracles must not rely on state of the current test
          */
-        final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        final CtMethod<?> test = Utils.findMethod(testClass, "testWithAMethodCallThatContainsAssertionsAndItsReturnedValueIsUsed");
+        final CtClass<?> testClass = eu.stamp_project.Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        final CtMethod<?> test = eu.stamp_project.Utils.findMethod(testClass, "testWithAMethodCallThatContainsAssertionsAndItsReturnedValueIsUsed");
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> ctMethod = assertionRemover.removeAssertion(test);
         final String expectedMethodString = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
@@ -102,8 +103,8 @@ public class AssertionRemoverTest extends AbstractTest {
         /*
             Test that the AssertionRemoverTest is able to remove assertion but not try with resources
          */
-        final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        final CtMethod<?> testWithALambda = Utils.findMethod(testClass, "testWithTryWithResource");
+        final CtClass<?> testClass = eu.stamp_project.Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        final CtMethod<?> testWithALambda = eu.stamp_project.Utils.findMethod(testClass, "testWithTryWithResource");
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithALambda);
         final String expectedBody = "{" + AmplificationHelper.LINE_SEPARATOR +
@@ -119,8 +120,8 @@ public class AssertionRemoverTest extends AbstractTest {
         /*
             Test that we can remove the assertion on a lambda expression
          */
-        final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        final CtMethod<?> testWithALambda = Utils.findMethod(testClass, "testWithALambda");
+        final CtClass<?> testClass = eu.stamp_project.Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        final CtMethod<?> testWithALambda = eu.stamp_project.Utils.findMethod(testClass, "testWithALambda");
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithALambda);
         System.out.println(ctMethod);
@@ -134,8 +135,8 @@ public class AssertionRemoverTest extends AbstractTest {
             test that we can remove assert that have type that are not correct java identifier
          */
 
-        final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        final CtMethod<?> testWithCatchVariable = Utils.findMethod(testClass, "testWithArray");
+        final CtClass<?> testClass = eu.stamp_project.Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        final CtMethod<?> testWithCatchVariable = eu.stamp_project.Utils.findMethod(testClass, "testWithArray");
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithCatchVariable);
         assertTrue(
@@ -166,8 +167,8 @@ public class AssertionRemoverTest extends AbstractTest {
             We remove try/catch block and Assert.fail() statement if any.
          */
 
-        final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
-        final CtMethod<?> testWithCatchVariable = Utils.findMethod(testClass, "test3_exceptionCatch");
+        final CtClass<?> testClass = eu.stamp_project.Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        final CtMethod<?> testWithCatchVariable = eu.stamp_project.Utils.findMethod(testClass, "test3_exceptionCatch");
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithCatchVariable);
         assertTrue(ctMethod.getElements(new TypeFilter<>(CtCatch.class)).isEmpty());
@@ -182,7 +183,7 @@ public class AssertionRemoverTest extends AbstractTest {
 
     @Test
     public void testRemoveAssertionOnSimpleExample() throws Exception {
-        final CtClass<?> testClass = Utils.findClass("fr.inria.sample.TestClassWithAssert");
+        final CtClass<?> testClass = eu.stamp_project.Utils.findClass("fr.inria.sample.TestClassWithAssert");
         final AssertionRemover assertionRemover = new AssertionRemover();
         testClass.getMethodsByName("test1").get(0).getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
             @Override
@@ -206,7 +207,7 @@ public class AssertionRemoverTest extends AbstractTest {
             Test that the AssertionRemover remove assertions from tests when the assertion is inside a case:
 		 */
 
-        final CtClass<?> testClass = Utils.findClass("fr.inria.assertionremover.TestClassWithAssertToBeRemoved");
+        final CtClass<?> testClass = eu.stamp_project.Utils.findClass("fr.inria.assertionremover.TestClassWithAssertToBeRemoved");
         final AssertionRemover assertionRemover = new AssertionRemover();
         testClass.getMethodsByName("test1").get(0).getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
             @Override
@@ -236,7 +237,7 @@ public class AssertionRemoverTest extends AbstractTest {
             Test that the AssertionRemover remove assertions from tests when assertions used unary operators
 		 */
 
-        final CtClass<?> testClass = Utils.findClass("fr.inria.assertionremover.TestClassWithAssertToBeRemoved");
+        final CtClass<?> testClass = eu.stamp_project.Utils.findClass("fr.inria.assertionremover.TestClassWithAssertToBeRemoved");
         final AssertionRemover assertionRemover = new AssertionRemover();
         testClass.getMethodsByName("test2").get(0).getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
             @Override
@@ -259,7 +260,7 @@ public class AssertionRemoverTest extends AbstractTest {
             Test that the AssertionRemover remove all kind of assertions
 		 */
 
-        final CtClass<?> testClass = Utils.findClass("fr.inria.helper.TestWithMultipleAsserts");
+        final CtClass<?> testClass = eu.stamp_project.Utils.findClass("fr.inria.helper.TestWithMultipleAsserts");
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> testMethod = testClass.getMethodsByName("test").get(0);
         final CtMethod<?> removedAssertion = assertionRemover.removeAssertion(testMethod);

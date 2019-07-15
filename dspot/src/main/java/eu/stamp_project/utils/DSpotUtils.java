@@ -164,7 +164,7 @@ public class DSpotUtils {
 
     private static final String PACKAGE_PATH = "eu/stamp_project/" + PACKAGE_NAME + "/";
 
-    private static final String[] DSPOT_CLASSES = new String[]{"MethodsHandler", "ObjectLog", "Observation", "Utils", "FailToObserveException"};
+    private static final String[] DSPOT_CLASSES = new String[]{"MethodsHandler", "ObjectLog", "Observation", "components", "FailToObserveException"};
 
     public static String getAbsolutePathToDSpotDependencies() {
         return InputConfiguration.get().getAbsolutePathToProjectRoot() + PATH_TO_DSPOT_DEPENDENCIES;

@@ -1,9 +1,8 @@
-package eu.stamp_project.dspot.assertgenerator;
+package eu.stamp_project.dspot.assertgenerator.components.utils;
 
 import eu.stamp_project.compare.MethodsHandler;
 import eu.stamp_project.compare.ObjectLog;
 import eu.stamp_project.utils.CloneHelper;
-import eu.stamp_project.utils.program.InputConfiguration;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
@@ -16,53 +15,15 @@ import spoon.reflect.reference.CtWildcardReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.SpoonClassNotFoundException;
 
-import java.io.File;
-import java.net.URL;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 /**
  * Created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
  * on 3/3/17
  */
-public class AssertGeneratorHelper {
-
-    public static boolean canGenerateAnAssertionFor(String candidate) {
-        return !AssertGeneratorHelper.containsObjectReferences(candidate) &&
-                (InputConfiguration.get().shouldAllowPathInAssertion() || !AssertGeneratorHelper.containsAPath(candidate));
-    }
-
-    public static boolean containsAPath(String candidate) {
-        if (candidate == null) {
-            return false;
-        }
-        if (new File(candidate).exists()) {
-            return true;
-        }
-
-        String[] split = candidate.split(" ");
-        final Pattern pattern = Pattern.compile(".*((.*/)+).*");
-        for (String s : split) {
-            if (s.length() < 4096 &&
-                    pattern.matcher(s).matches()) {
-                return true;
-            }
-        }
-
-        try {
-            new URL(candidate);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public static boolean containsObjectReferences(String candidate) {
-        return candidate != null &&
-                Pattern.compile("(\\w+\\.)*\\w@[a-f0-9]+").matcher(candidate).find();
-    }
+public class Utils {
 
     static boolean isCorrectReturn(CtInvocation<?> invocation) {
         return invocation.getType() != null &&
@@ -72,12 +33,12 @@ public class AssertGeneratorHelper {
                 !("java.lang.Class".equals(invocation.getType().getTypeDeclaration().getQualifiedName()));
     }
 
-    static boolean isVoidReturn(CtInvocation invocation) {
+    public static boolean isVoidReturn(CtInvocation invocation) {
         return (invocation.getType().equals(invocation.getFactory().Type().voidType()) ||
                 invocation.getType().equals(invocation.getFactory().Type().voidPrimitiveType()));
     }
 
-    static CtMethod<?> createTestWithLog(CtMethod test, final String filter,
+    public static CtMethod<?> createTestWithLog(CtMethod test, final String filter,
                                          List<CtLocalVariable<?>> ctVariableReads) {
         CtMethod clone = CloneHelper.cloneTestMethodNoAmp(test);
         clone.setSimpleName(test.getSimpleName() + "_withlog");
@@ -170,7 +131,7 @@ public class AssertGeneratorHelper {
         return block.getStatements().size() +
                 block.getStatements().stream()
                         .filter(statement -> statement instanceof CtBlock)
-                        .mapToInt(childBlock -> AssertGeneratorHelper.getSize((CtBlock<?>) childBlock))
+                        .mapToInt(childBlock -> Utils.getSize((CtBlock<?>) childBlock))
                         .sum();
     }
 
