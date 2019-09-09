@@ -5,12 +5,14 @@ import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtMethod;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 public class BooleanLiteralAmplifier extends AbstractLiteralAmplifier<Boolean> {
 
     @Override
     protected Set<CtExpression<Boolean>> amplify(CtExpression<Boolean> original, CtMethod<?> testMethod) {
+        System.out.println("********************* Boolean amplifier !!!!");
         return Collections.singleton(testMethod.getFactory().createLiteral(!((CtLiteral<Boolean>)original).getValue()));
     }
 
@@ -23,4 +25,5 @@ public class BooleanLiteralAmplifier extends AbstractLiteralAmplifier<Boolean> {
     protected Class<?> getTargetedClass() {
         return Boolean.class;
     }
+
 }

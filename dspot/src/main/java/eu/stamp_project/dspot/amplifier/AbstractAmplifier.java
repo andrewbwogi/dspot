@@ -1,9 +1,15 @@
 package eu.stamp_project.dspot.amplifier;
 
+import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
+import spoon.reflect.code.*;
+import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.visitor.filter.TypeFilter;
+import spoon.support.reflect.code.CtLocalVariableImpl;
+import spoon.support.reflect.code.CtNewArrayImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +94,59 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
 
     @Override
     public Stream<CtMethod<?>> amplify(CtMethod<?> testMethod, int iteration) {
+
+        int[] a = {1,2};
+        System.out.println(a.getClass().isArray());
+
+        CtNewArrayImpl newArray = new CtNewArrayImpl<>();
+        System.out.println("************** new array: ");
+        System.out.println(newArray);
+
+        TypeFilter<CtExpression<Boolean>> LITERAL_TYPE_FILTER = new TypeFilter<CtExpression<Boolean>>(CtExpression.class);
+
+
+        List<CtNewArrayImpl> c = testMethod.getElements(new TypeFilter<>(CtNewArrayImpl.class));
+        System.out.println("................ custom filter");
+        for(CtNewArrayImpl o : c){
+            System.out.println(o);
+            System.out.println(o.getClass());
+            System.out.println("------------------");
+        }
+        System.out.println("................ custom filter end");
+
+
+        List<CtElement> e = testMethod.getElements(new TypeFilter<>(CtElement.class));
+        System.out.println("................ boolean filter");
+        for(CtElement o : e){
+            System.out.println(o);
+            System.out.println(o.getClass());
+            System.out.println("------------------");
+        }
+        System.out.println("................ boolean filter end");
+
+        Boolean b = true;
+        //System.out.println(b.getClass().getName());
+        int[] i = new int[]{1,2};
+        //System.out.println(i.getClass().getName());
+        //System.out.println("oooooooooooo statements");
+        for(CtStatement s : testMethod.getBody().getStatements()){
+            //System.out.println(s);
+            //System.out.println(s.getClass());
+            if(s instanceof CtLocalVariableImpl){
+                /*System.out.println(((CtLocalVariableImpl) s).getAssignment());
+                System.out.println(((CtLocalVariableImpl) s).getAssignment().getClass());
+                System.out.println(((CtLocalVariableImpl) s).getAssignment().getType());
+                System.out.println(((CtLocalVariableImpl) s).getAssignment().getType().getClass());*/
+            }
+            //System.out.println("----------");
+        }
+
+
         List<T> originals = this.getOriginals(testMethod);
+        System.out.println("................ from getOriginals");
+        for(T o : originals){
+            System.out.println(o);
+        }
         List<T> reducedOriginals = this.reduceAlreadyAmplifiedElements(originals);
         return reducedOriginals.stream()
                 .filter(reducedOriginal ->
