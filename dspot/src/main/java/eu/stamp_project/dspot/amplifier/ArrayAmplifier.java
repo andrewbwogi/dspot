@@ -16,7 +16,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
+/**
+ * Created by Andrew Bwogi
+ * abwogi@kth.se
+ * on 12/09/19
+ */
 public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
 
     protected final TypeFilter<CtExpression<CtNewArrayImpl>> ARRAY_LITERAL_TYPE_FILTER = new TypeFilter<CtExpression<CtNewArrayImpl>>(CtExpression.class) {
