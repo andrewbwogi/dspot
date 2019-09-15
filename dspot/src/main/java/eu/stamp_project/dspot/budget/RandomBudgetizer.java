@@ -58,6 +58,11 @@ public class RandomBudgetizer extends AbstractBugetizer {
                     return inputAmplifiedTestMethods;
                 }).collect(Collectors.toList());
         LOGGER.info("{} new tests generated", inputAmplifiedTests.size());
+        System.out.println("--printtest");
+
+        for(CtMethod m : inputAmplifiedTests){
+            System.out.println(m);
+        }
         return reduce(inputAmplifiedTests);
     }
 

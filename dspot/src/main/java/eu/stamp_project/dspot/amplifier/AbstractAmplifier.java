@@ -3,6 +3,7 @@ package eu.stamp_project.dspot.amplifier;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.CloneHelper;
 import eu.stamp_project.utils.Counter;
+import eu.stamp_project.utils.DSpotUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtElement;
@@ -14,6 +15,7 @@ import spoon.support.reflect.code.CtNewArrayImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -94,7 +96,7 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
 
     @Override
     public Stream<CtMethod<?>> amplify(CtMethod<?> testMethod, int iteration) {
-
+/*
         int[] a = {1,2};
         System.out.println(a.getClass().isArray());
 
@@ -133,22 +135,22 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
             //System.out.println(s);
             //System.out.println(s.getClass());
             if(s instanceof CtLocalVariableImpl){
-                /*System.out.println(((CtLocalVariableImpl) s).getAssignment());
+                System.out.println(((CtLocalVariableImpl) s).getAssignment());
                 System.out.println(((CtLocalVariableImpl) s).getAssignment().getClass());
                 System.out.println(((CtLocalVariableImpl) s).getAssignment().getType());
-                System.out.println(((CtLocalVariableImpl) s).getAssignment().getType().getClass());*/
+                System.out.println(((CtLocalVariableImpl) s).getAssignment().getType().getClass());
             }
             //System.out.println("----------");
-        }
+        }*/
 
 
         List<T> originals = this.getOriginals(testMethod);
-        System.out.println("................ from getOriginals");
+        /*System.out.println("................ from getOriginals");
         for(T o : originals){
             System.out.println(o);
-        }
+        }*/
         List<T> reducedOriginals = this.reduceAlreadyAmplifiedElements(originals);
-        return reducedOriginals.stream()
+        final Stream<CtMethod<?>> inputAmplifiedTestMethods = reducedOriginals.stream()
                 .filter(reducedOriginal ->
                         reducedOriginal.getMetadata(METADATA_KEY) == null ||
                                 !(boolean) reducedOriginal.getMetadata(METADATA_KEY)
@@ -157,5 +159,17 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
                                 .stream()
                                 .map(amplified -> this.replace(original, amplified, testMethod))
                 );
+
+
+        //final Stream<CtMethod<?>> inputAmplifiedTestMethods2 = inputAmplifiedTestMethods.
+        /*List<CtMethod<?>> inputAmplifiedTests = inputAmplifiedTestMethods.collect(Collectors.toList());
+
+
+        System.out.println("--printtest");
+        for(CtMethod m : inputAmplifiedTests){
+            System.out.println(m);
+        }
+*/
+        return inputAmplifiedTestMethods;
     }
 }
