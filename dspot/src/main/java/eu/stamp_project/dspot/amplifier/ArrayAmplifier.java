@@ -7,6 +7,8 @@ import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.factory.CoreFactory;
+import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.code.CtNewArrayImpl;
 
@@ -96,15 +98,39 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
 
     @Override
     protected Set<CtExpression<CtNewArrayImpl>> amplify(CtExpression<CtNewArrayImpl> original, CtMethod<?> testMethod) {
+        Factory factory = testMethod.getFactory();
+
         System.out.println("********************* Array amplifier !!!!");
 
         System.out.println("original: " + original);
-        CtNewArrayImpl castedOriginal = (CtNewArrayImpl) original;
         Set<CtExpression<CtNewArrayImpl>> values = new HashSet<>();
-        List<CtExpression> list = ((CtNewArrayImpl) original).getElements();
+
+        if(original instanceof CtLiteral && ((CtLiteral)original).getValue() == null) {
+            System.out.println("in null");
+            String type = constructArraysForNull(values,(CtLiteral)original,testMethod.getFactory());
+
+            // array with one element
+            System.out.println("type: " + type);
+            String additionalElement = constructAdditionalElement(type);
+            System.out.println("additional: " + additionalElement);
+            String array = constructEmptyArray(type,additionalElement);
+            System.out.println("array: "+array);
+            values.add(factory.createCodeSnippetExpression(array));
+
+            // empty array
+            array = constructEmptyArray(type,"");
+            values.add(factory.createCodeSnippetExpression(array));
+            return values;
+        }
+
+        CtNewArrayImpl castedOriginal = (CtNewArrayImpl) original;
+        List<CtExpression> list = castedOriginal.getElements();
         if(list.isEmpty())
         {
-
+            System.out.println("--listempty");
+            String additionalElement = constructAdditionalElement(original.getType().toString());
+            String array = constructEmptyArray(original.getType().toString(),additionalElement);
+            values.add(factory.createCodeSnippetExpression(array));
         }
         else {
 
@@ -126,6 +152,89 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
         }
         return values;
     }
+    // todo refactor so matches does not duplicate the code below
+    private String constructArraysForNull(Set<CtExpression<CtNewArrayImpl>> values, CtLiteral original, Factory factory) {
+        String name = "";
+        // getting the class of the expected parameter
+        if (original.getParent() instanceof CtInvocation<?>) {
+            final CtInvocation<?> parent = (CtInvocation<?>) original.getParent();
+            name =  parent.getExecutable()
+                    .getDeclaration()
+                    .getParameters()
+                    .get(parent.getArguments().indexOf(original))
+                    .getType()
+                    .getActualClass().getTypeName();
+
+            // getting the class of the assignee
+        } else if (original.getParent() instanceof CtAssignment) {
+            name = ((CtAssignment) original.getParent())
+                    .getAssigned()
+                    .getType()
+                    .getActualClass().getTypeName();
+
+            // getting the class of the local variable
+        } else if (original.getParent() instanceof CtLocalVariable) {
+            name = ((CtLocalVariable) original.getParent())
+                    .getType()
+                    .getActualClass().getTypeName();
+        }
+
+        System.out.println("--name: " + name);
+        return name;
+
+    }
+
+    private String constructAdditionalElement(String type) {
+        type = type.toLowerCase().substring(0,3);
+        if(type.equals("int")){
+            return "1";
+        }
+        else if(type.equals("sho")){
+            return "1";
+        }
+        else if(type.equals("lon")){
+            return "1L";
+        }
+        else if(type.equals("flo")){
+            return "1.1F";
+        }
+        else if(type.equals("dou")){
+            return "1.1";
+        }
+        else if(type.equals("byt")){
+            return "1";
+        }
+        else if(type.equals("boo")){
+            return "true";
+        }
+        else if(type.equals("cha")){
+            return "'a'";
+        }
+        else if(type.equals("Str")){
+            return "\"a\"";
+        }
+        else {
+            return "null";
+        }
+    }
+
+    private String constructEmptyArray(String type, String additionalElement) {
+        long dimensions = type.chars().filter(num -> num == '[').count();
+        System.out.println("dimensions: " + dimensions);
+        StringBuilder sb = new StringBuilder();
+        sb.append("new " + type);
+        for(int i = 0;i<dimensions;i++){
+            sb.append("{");
+        }
+
+        // add element
+        sb.append(additionalElement);
+        for(int i = 0;i<dimensions;i++){
+            sb.append("}");
+        }
+        return sb.toString();
+    }
+
 
     @Override
     protected String getSuffix() {
@@ -135,13 +244,129 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
     @Override
     protected Class<?> getTargetedClass() {
         return Array.class;
-    }
+    } // not used
 
     @Override
     protected List<CtExpression<CtNewArrayImpl>> getOriginals(CtMethod<?> testMethod) {
         System.out.println("----------------- getOriginals Array: ");
 
+        System.out.println(testMethod);
         return testMethod.getElements(ARRAY_LITERAL_TYPE_FILTER);
     }
 
 }
+
+
+
+/*
+    private CtExpression<CtNewArrayImpl> constructArray2(Set<CtExpression<CtNewArrayImpl>> values, CtExpression<CtNewArrayImpl> original, Factory factory, boolean isNull) {
+        String type;
+        if(isNull){
+            type = constructArraysForNull();
+        }
+        else{
+            type = original.getType().toString();
+        }
+        long dimensions = type.chars().filter(num -> num == '[').count();
+        System.out.println("dimensions: " + dimensions);
+        StringBuilder sb = new StringBuilder();
+        sb.append("new " + type);
+        for(int i = 0;i<dimensions;i++){
+            sb.append("{");
+        }
+
+        // add correct element
+        type = type.toLowerCase().substring(0,3);
+        System.out.println(type);
+        if(type.equals("int")){
+            sb.append("1");
+        }
+        else if(type.equals("sho")){
+            sb.append("1");
+        }
+        else if(type.equals("lon")){
+            sb.append("1L");
+        }
+        else if(type.equals("flo")){
+            sb.append("1.1F");
+        }
+        else if(type.equals("dou")){
+            sb.append("1.1");
+        }
+        else if(type.equals("byt")){
+            sb.append("1");
+        }
+        else if(type.equals("boo")){
+            sb.append("true");
+        }
+        else if(type.equals("cha")){
+            sb.append("'a'");
+        }
+        else if(type.equals("Str")){
+            sb.append("\"a\"");
+        }
+        else {
+            sb.append("null");
+        }
+
+
+        for(int i = 0;i<dimensions;i++){
+            sb.append("}");
+        }
+        values.add(factory.createCodeSnippetExpression(sb.toString()));
+        if(isNull){
+
+        }
+        return factory.createCodeSnippetExpression(sb.toString());
+    }
+*/
+
+/*
+    private CtExpression<CtNewArrayImpl> constructArray(CtExpression<CtNewArrayImpl> original, Factory factory) {
+        String expression = original.toString();
+        long dimensions = expression.chars().filter(num -> num == '[').count();
+        System.out.println("dimensions: " + dimensions);
+        StringBuilder sb = new StringBuilder();
+        sb.append("new " + original.getType());
+        for(int i = 0;i<dimensions;i++){
+            sb.append("{");
+        }
+
+        // add correct element
+        String type = original.getType().toString().toLowerCase().substring(0,3);
+        System.out.println(type);
+        if(type.equals("int")){
+            sb.append("1");
+        }
+        else if(type.equals("sho")){
+            sb.append("1");
+        }
+        else if(type.equals("lon")){
+            sb.append("1L");
+        }
+        else if(type.equals("flo")){
+            sb.append("1.1F");
+        }
+        else if(type.equals("dou")){
+            sb.append("1.1");
+        }
+        else if(type.equals("byt")){
+            sb.append("1");
+        }
+        else if(type.equals("boo")){
+            sb.append("true");
+        }
+        else if(type.equals("cha")){
+            sb.append("'a'");
+        }
+        else if(type.equals("Str")){
+            sb.append("\"a\"");
+        }
+        else {
+            sb.append("null");
+        }
+        for(int i = 0;i<dimensions;i++){
+            sb.append("}");
+        }
+        return factory.createCodeSnippetExpression(sb.toString());
+    }*/

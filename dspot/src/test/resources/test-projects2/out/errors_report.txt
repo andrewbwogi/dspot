@@ -1,9 +1,8 @@
 DSpot encountered 1 error(s) during amplification.
 Something bad happened during input amplification.
-java.lang.IndexOutOfBoundsException: Index: 0
-	at spoon.support.util.EmptyClearableList.get(EmptyClearableList.java:90)
-	at eu.stamp_project.dspot.amplifier.ArrayAmplifier.amplify(ArrayAmplifier.java:136)
-	at eu.stamp_project.dspot.amplifier.ArrayAmplifier.amplify(ArrayAmplifier.java:20)
+java.lang.ClassCastException: spoon.support.reflect.code.CtLiteralImpl cannot be cast to spoon.support.reflect.code.CtNewArrayImpl
+	at eu.stamp_project.dspot.amplifier.ArrayAmplifier.amplify(ArrayAmplifier.java:106)
+	at eu.stamp_project.dspot.amplifier.ArrayAmplifier.amplify(ArrayAmplifier.java:26)
 	at eu.stamp_project.dspot.amplifier.AbstractAmplifier.lambda$amplify$2(AbstractAmplifier.java:158)
 	at java.util.stream.ReferencePipeline$7$1.accept(ReferencePipeline.java:267)
 	at java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:175)

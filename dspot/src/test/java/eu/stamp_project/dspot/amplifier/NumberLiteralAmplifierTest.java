@@ -103,11 +103,15 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + "litNum" + (i + 1), mutantMethod.getSimpleName());
             CtExpression mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtExpression.class)).get(0);
+            System.out.println("--mutantbody");
+            System.out.println(mutantMethod);
             if (mutantLiteral instanceof CtLiteral) {
                 assertNotEquals(originalValue, ((CtLiteral<?>) mutantLiteral).getValue());
                 assertTrue(((CtLiteral<?>) mutantLiteral).getValue() + " not in expected values",
                         expectedValues.contains(((CtLiteral<?>) mutantLiteral).getValue()));
             } else {
+                System.out.println("--infield");
+                System.out.println(mutantLiteral);
                 assertTrue(mutantLiteral instanceof CtFieldRead);
                 assertTrue(expectedFieldReads.contains(mutantLiteral.toString()));
             }
@@ -207,6 +211,8 @@ public class NumberLiteralAmplifierTest extends AbstractTest {
                 assertTrue(((CtLiteral<?>) mutantLiteral).getValue() + " not in expected values",
                         expectedValues.contains(((CtLiteral<?>) mutantLiteral).getValue()));
             } else {
+                System.out.println("--infield");
+                System.out.println(mutantLiteral);
                 assertTrue(mutantLiteral instanceof CtFieldRead);
                 assertTrue(expectedFieldReads.contains(mutantLiteral.toString()));
             }
