@@ -107,19 +107,22 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
 
         if(original instanceof CtLiteral && ((CtLiteral)original).getValue() == null) {
             System.out.println("in null");
-            String type = constructArraysForNull(values,(CtLiteral)original,testMethod.getFactory());
+            String type = constructArraysForNull((CtLiteral)original);
 
             // array with one element
             System.out.println("type: " + type);
             String additionalElement = constructAdditionalElement(type);
             System.out.println("additional: " + additionalElement);
-            String array = constructEmptyArray(type,additionalElement);
+            String array = constructEmptyArray(type,additionalElement,false);
             System.out.println("array: "+array);
             values.add(factory.createCodeSnippetExpression(array));
 
             // empty array
-            array = constructEmptyArray(type,"");
-            values.add(factory.createCodeSnippetExpression(array));
+            array = constructEmptyArray(type,"",true);
+            System.out.println("array: " + array);
+            boolean added = values.add(factory.createCodeSnippetExpression(array));
+            System.out.println(values.size());
+            System.out.println(added);
             return values;
         }
 
@@ -129,7 +132,7 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
         {
             System.out.println("--listempty");
             String additionalElement = constructAdditionalElement(original.getType().toString());
-            String array = constructEmptyArray(original.getType().toString(),additionalElement);
+            String array = constructEmptyArray(original.getType().toString(),additionalElement,false);
             values.add(factory.createCodeSnippetExpression(array));
         }
         else {
@@ -153,7 +156,7 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
         return values;
     }
     // todo refactor so matches does not duplicate the code below
-    private String constructArraysForNull(Set<CtExpression<CtNewArrayImpl>> values, CtLiteral original, Factory factory) {
+    private String constructArraysForNull(CtLiteral original) {
         String name = "";
         // getting the class of the expected parameter
         if (original.getParent() instanceof CtInvocation<?>) {
@@ -218,8 +221,14 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
         }
     }
 
-    private String constructEmptyArray(String type, String additionalElement) {
-        long dimensions = type.chars().filter(num -> num == '[').count();
+    private String constructEmptyArray(String type, String additionalElement,boolean isEmpty) {
+        long dimensions;
+        if(isEmpty){
+            dimensions = 1;
+        }
+        else {
+            dimensions = type.chars().filter(num -> num == '[').count();
+        }
         System.out.println("dimensions: " + dimensions);
         StringBuilder sb = new StringBuilder();
         sb.append("new " + type);

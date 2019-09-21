@@ -53,18 +53,39 @@ public class ArrayAmplifierTest extends AbstractTest {
     }
 
     @Test
-    public void testNullArrayMutation() {
-        //int[][][] j = new int[][][]{{{1}}};
-        final String nameMethod = "methodNullArray";
-        String originalValue = "new int[][]{ new int[]{ 3, 4 }, new int[]{ 1, 2 } }";
+    public void testEmptyArrayMutation() {
+        final String nameMethod = "methodEmptyArray";
+        String originalValue = "new int[][]{ }";
         CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.ArrayMutation");
         RandomHelper.setSeedRandom(42L);
         ArrayAmplifier amplifier = getAmplifier(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<String> expectedValues = Arrays.asList("new int[][]{ new int[]{ 3, 4 }, new int[]{ 1, 2 }, new int[]{ 3, 4 } }",
-                "new int[][]{ new int[]{ 1, 2 } }","new int[][]{  }");
+        List<String> expectedValues = Arrays.asList("new int[][]{{1}}");
         List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
-        assertEquals(3, mutantMethods.size());
+        assertEquals(1, mutantMethods.size());
+        for (int i = 0; i < mutantMethods.size(); i++) {
+            CtMethod mutantMethod = mutantMethods.get(i);
+            assertEquals(nameMethod + "litArray" + (i + 1), mutantMethod.getSimpleName());
+            CtExpression mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtExpression.class)).get(0);
+            assertNotEquals(originalValue, mutantLiteral);
+            assertTrue(mutantLiteral + " not in expected values",
+                    expectedValues.contains(mutantLiteral.toString()));
+        }
+    }
+
+    @Test
+    public void testNullArrayMutation() {
+        int[][] test = new int[][]{{}};
+        System.out.println(test.length);
+        final String nameMethod = "methodNullArray";
+        String originalValue = "null";
+        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.ArrayMutation");
+        RandomHelper.setSeedRandom(42L);
+        ArrayAmplifier amplifier = getAmplifier(literalMutationClass);
+        CtMethod method = literalMutationClass.getMethod(nameMethod);
+        List<String> expectedValues = Arrays.asList("new int[][]{{1}}","new int[][]{}");
+        List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
+        assertEquals(2, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + "litArray" + (i + 1), mutantMethod.getSimpleName());
