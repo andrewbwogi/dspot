@@ -12,6 +12,7 @@ import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.code.CtNewArrayImpl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,7 +84,7 @@ public class ArrayAmplifierTest extends AbstractTest {
         RandomHelper.setSeedRandom(42L);
         ArrayAmplifier amplifier = getAmplifier(literalMutationClass);
         CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<String> expectedValues = Arrays.asList("new int[][]{{1}}","new int[][]{}");
+        List<String> expectedValues = Arrays.asList("new int[][]{{1}}","new int[][]{  }");
         List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
         assertEquals(2, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {

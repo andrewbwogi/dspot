@@ -2,6 +2,7 @@ package eu.stamp_project.dspot.amplifier;
 
 import com.esotericsoftware.kryo.Kryo;
 import eu.stamp_project.test_framework.TestFramework;
+import eu.stamp_project.utils.program.InputConfiguration;
 import org.apache.commons.lang3.SerializationUtils;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtAnnotation;
@@ -9,14 +10,13 @@ import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.CoreFactory;
 import spoon.reflect.factory.Factory;
+import spoon.reflect.factory.FactoryImpl;
 import spoon.reflect.visitor.filter.TypeFilter;
+import spoon.support.reflect.code.CtCodeSnippetExpressionImpl;
 import spoon.support.reflect.code.CtNewArrayImpl;
 
 import java.lang.reflect.Array;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Andrew Bwogi
@@ -98,32 +98,73 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
 
     @Override
     protected Set<CtExpression<CtNewArrayImpl>> amplify(CtExpression<CtNewArrayImpl> original, CtMethod<?> testMethod) {
-        Factory factory = testMethod.getFactory();
+        //Factory factory = testMethod.getFactory();
+        final Factory factory = InputConfiguration.get().getFactory();
 
+        //Factory factory = new CoreFactory();
         System.out.println("********************* Array amplifier !!!!");
 
         System.out.println("original: " + original);
         Set<CtExpression<CtNewArrayImpl>> values = new HashSet<>();
 
         if(original instanceof CtLiteral && ((CtLiteral)original).getValue() == null) {
-            System.out.println("in null");
+            String type = constructArraysForNull((CtLiteral)original);
+            String additionalElement = constructAdditionalElement(type);
+            String array = constructEmptyArray(type,additionalElement,false);
+            CtExpression compiled = factory.createCodeSnippetExpression(array).compile();
+
+            // array with one element
+            values.add(compiled);
+            array = constructEmptyArray(type,"",true);
+            compiled = factory.createCodeSnippetExpression(array).compile();
+
+            // empty array
+            values.add(compiled);
+            return values;
+
+
+
+/*
+            //System.out.println("in null");
             String type = constructArraysForNull((CtLiteral)original);
 
             // array with one element
-            System.out.println("type: " + type);
+            //System.out.println("type: " + type);
             String additionalElement = constructAdditionalElement(type);
-            System.out.println("additional: " + additionalElement);
+            //System.out.println("additional: " + additionalElement);
             String array = constructEmptyArray(type,additionalElement,false);
-            System.out.println("array: "+array);
+            //System.out.println("array: "+array);
             values.add(factory.createCodeSnippetExpression(array));
+
 
             // empty array
             array = constructEmptyArray(type,"",true);
-            System.out.println("array: " + array);
-            boolean added = values.add(factory.createCodeSnippetExpression(array));
+            /*System.out.println("array: " + array);
+            CtCodeSnippetExpression e = new CtCodeSnippetExpressionImpl();
+            e.setValue("new int[][]{}");*/
+          /*  CtExpression compiled = factory.createCodeSnippetExpression(array).compile();
+//            boolean added = values.add(factory.createCodeSnippetExpression(array));
+            values.add(compiled);
+
+            //boolean added = values.add(e);
+            //System.out.println(values.size());
+            //System.out.println(added);
+            /*System.out.println("next");
+            CtExpression e = factory.createCodeSnippetExpression(array);
+            CtExpression n = SerializationUtils.clone(e);
+            System.out.println(n);
+            added = values.add(new CtNewArrayImpl<>());
             System.out.println(values.size());
-            System.out.println(added);
-            return values;
+            System.out.println(added);*/
+            /*ArrayList<Integer> ai = new ArrayList<>();
+            Integer test = new Integer(1);
+            Integer test2 = test;
+            boolean ad = ai.add(test);
+            System.out.println("ad: " + ad);
+            ad = ai.add(test);
+            System.out.println("ad: " + ad);
+            System.out.println(ai.size());*/
+            //return values;
         }
 
         CtNewArrayImpl castedOriginal = (CtNewArrayImpl) original;
@@ -133,25 +174,25 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
             System.out.println("--listempty");
             String additionalElement = constructAdditionalElement(original.getType().toString());
             String array = constructEmptyArray(original.getType().toString(),additionalElement,false);
-            values.add(factory.createCodeSnippetExpression(array));
+            CtExpression compiled = factory.createCodeSnippetExpression(array).compile();
+            values.add(compiled);
         }
         else {
 
             // create array expressions that are modifications of the original array expression
             CtNewArray cloneAdd = SerializationUtils.clone(castedOriginal);
             CtNewArray cloneSub = SerializationUtils.clone(castedOriginal);
-            CtNewArray cloneEmpty = SerializationUtils.clone(castedOriginal);
             List<CtExpression> elements = cloneSub.getElements();
             CtExpression newElement = SerializationUtils.clone(elements.get(0));
             cloneSub.removeElement(elements.get(0));
             cloneAdd.addElement(newElement);
-            cloneEmpty.setElements(Collections.EMPTY_LIST);
-            System.out.println("add: " + cloneAdd);
-            System.out.println("sub: "+cloneSub);
-            System.out.println("empty: "+cloneEmpty);
             values.add(cloneAdd);
             values.add(cloneSub);
-            values.add(cloneEmpty);
+            if(list.size()>1){
+                CtNewArray cloneEmpty = SerializationUtils.clone(castedOriginal);
+                cloneEmpty.setElements(Collections.EMPTY_LIST);
+                values.add(cloneEmpty);
+            }
         }
         return values;
     }
