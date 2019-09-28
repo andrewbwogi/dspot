@@ -2,7 +2,10 @@ package eu.stamp_project.dspot.amplifier;
 
 import eu.stamp_project.AbstractTest;
 import eu.stamp_project.Utils;
+import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.utils.RandomHelper;
+import eu.stamp_project.utils.program.InputConfiguration;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
@@ -32,6 +35,19 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
  * on 12/09/19
  */
 public class ArrayAmplifierTest extends AbstractTest {
+
+    ArrayAmplifier amplifier;
+
+    CtClass<Object> literalMutationClass;
+
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.ArrayMutation");
+        RandomHelper.setSeedRandom(42L);
+        amplifier = getAmplifier(literalMutationClass);
+    }
+
     /*
         Test so that correct number of mutants is generated, that the mutant does not equal the original
         and the value of the mutant.
@@ -39,23 +55,30 @@ public class ArrayAmplifierTest extends AbstractTest {
     @Test
     public void testArrayMutation() {
         final String nameMethod = "methodArray";
-        String originalValue = "new int[][]{ new int[]{ 3, 4 }, new int[]{ 1, 2 } }";
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.ArrayMutation");
-        RandomHelper.setSeedRandom(42L);
-        ArrayAmplifier amplifier = getAmplifier(literalMutationClass);
-        CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<String> expectedValues = Arrays.asList("new int[][]{ new int[]{ 3, 4 }, new int[]{ 1, 2 }, new int[]{ 3, 4 } }",
-                "new int[][]{ new int[]{ 1, 2 } }","new int[][]{  }");
+                "new int[][]{ new int[]{ 1, 2 } }","new int[][]{  }","null");
+        callAssert(nameMethod,expectedValues);
+    }
+
+    private void callAssert(String nameMethod,List<String> expectedValues){
+        amplifier.reset(literalMutationClass);
+        CtMethod method = literalMutationClass.getMethod(nameMethod);
         List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
-        assertEquals(3, mutantMethods.size());
+        assertEquals(expectedValues.size(), mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
             assertEquals(nameMethod + "litArray" + (i + 1), mutantMethod.getSimpleName());
             CtExpression mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtExpression.class)).get(0);
-            assertNotEquals(originalValue, mutantLiteral);
             assertTrue(mutantLiteral + " not in expected values",
                     expectedValues.contains(mutantLiteral.toString()));
         }
+    }
+
+    @Test
+    public void testNullArrayMutation() {
+        final String nameMethod = "methodNullArray";
+        List<String> expectedValues = Arrays.asList("new int[][]{ new int[]{ 1 } }","new int[][]{  }");
+        callAssert(nameMethod,expectedValues);
     }
 /*
     @Test
@@ -136,7 +159,8 @@ public class ArrayAmplifierTest extends AbstractTest {
             if(type.equals("String") || type.equals("Object")){
                 type = "java.lang." + type;
             }
-            List<String> expectedValues = Arrays.asList("new " + type + "[][]{ new " + type +"[]{ " + constructAdditionalElement(type) + " } }");
+            List<String> expectedValues = Arrays.asList("new " + type + "[][]{ new " + type +"[]{ " + constructAdditionalElement(type) + " } }","null");
+            System.out.println("expected: " + expectedValues.get(0));
             callAssert(nameMethod,expectedValues);
         }
     }
@@ -148,26 +172,13 @@ public class ArrayAmplifierTest extends AbstractTest {
         for(String type : list) {
             final String nameMethod = type.toLowerCase() + "Reference" + "EmptyArray";
             String fullType = "java.lang." + type;
-            List<String> expectedValues = Arrays.asList("new " + fullType + "[][]{ new " + fullType +"[]{ " + constructAdditionalElement(type) + " } }");
+            List<String> expectedValues = Arrays.asList("new " + fullType + "[][]{ new " + fullType +"[]{ " + constructAdditionalElement(type) + " } }","null");
             callAssert(nameMethod,expectedValues);
+
         }
     }
 
-    private void callAssert(String nameMethod,List<String> expectedValues){
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.ArrayMutation");
-        RandomHelper.setSeedRandom(42L);
-        ArrayAmplifier amplifier = getAmplifier(literalMutationClass);
-        CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
-        assertEquals(1, mutantMethods.size());
-        for (int i = 0; i < mutantMethods.size(); i++) {
-            CtMethod mutantMethod = mutantMethods.get(i);
-            assertEquals(nameMethod + "litArray" + (i + 1), mutantMethod.getSimpleName());
-            CtExpression mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtExpression.class)).get(0);
-            assertTrue(mutantLiteral + " not in expected values",
-                    expectedValues.contains(mutantLiteral.toString()));
-        }
-    }
+
 
 
     private String constructAdditionalElement(String type) {
@@ -193,7 +204,7 @@ public class ArrayAmplifierTest extends AbstractTest {
         else if(type.equals("char") || type.equals("character")){
             return "'a'";
         }
-        else if(type.equals("java.lang.String")){
+        else if(type.equals("java.lang.string")){
             return "\"a\"";
         }
         else {
@@ -216,7 +227,7 @@ public class ArrayAmplifierTest extends AbstractTest {
     }*/
 
     // https://junit.org/junit5/docs/current/user-guide/#writing-tests-dynamic-tests-examples
-
+/*
     @Test
     public void testEmptyArrayMutation() {
         final String nameMethod = "methodEmptyArray";
@@ -236,30 +247,8 @@ public class ArrayAmplifierTest extends AbstractTest {
             assertTrue(mutantLiteral + " not in expected values",
                     expectedValues.contains(mutantLiteral.toString()));
         }
-    }
+    }*/
 
-    @Test
-    public void testNullArrayMutation() {
-        int[][] test = new int[][]{{}};
-        System.out.println(test.length);
-        final String nameMethod = "methodNullArray";
-        String originalValue = "null";
-        CtClass<Object> literalMutationClass = Utils.getFactory().Class().get("fr.inria.amp.ArrayMutation");
-        RandomHelper.setSeedRandom(42L);
-        ArrayAmplifier amplifier = getAmplifier(literalMutationClass);
-        CtMethod method = literalMutationClass.getMethod(nameMethod);
-        List<String> expectedValues = Arrays.asList("new int[][]{ new int[]{ 1 } }","new int[][]{  }");
-        List<CtMethod> mutantMethods = amplifier.amplify(method, 0).collect(Collectors.toList());
-        assertEquals(2, mutantMethods.size());
-        for (int i = 0; i < mutantMethods.size(); i++) {
-            CtMethod mutantMethod = mutantMethods.get(i);
-            assertEquals(nameMethod + "litArray" + (i + 1), mutantMethod.getSimpleName());
-            CtExpression mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtExpression.class)).get(0);
-            assertNotEquals(originalValue, mutantLiteral);
-            assertTrue(mutantLiteral + " not in expected values",
-                    expectedValues.contains(mutantLiteral.toString()));
-        }
-    }
 
     private ArrayAmplifier getAmplifier(CtClass<Object> literalMutationClass) {
         ArrayAmplifier amplifier = new ArrayAmplifier();

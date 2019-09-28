@@ -49,30 +49,7 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
                             || literal.getParent(CtAnnotation.class) != null) {
                         return false;
                     } else if (literal.getValue() == null) {
-
-                        // getting the class of the expected parameter
-                        if (literal.getParent() instanceof CtInvocation<?>) {
-                            final CtInvocation<?> parent = (CtInvocation<?>) literal.getParent();
-                            return parent.getExecutable()
-                                    .getDeclaration()
-                                    .getParameters()
-                                    .get(parent.getArguments().indexOf(literal))
-                                    .getType()
-                                    .getActualClass().isArray();
-
-                            // getting the class of the assignee
-                        } else if (literal.getParent() instanceof CtAssignment) {
-                            return ((CtAssignment) literal.getParent())
-                                    .getAssigned()
-                                    .getType()
-                                    .getActualClass().isArray();
-
-                            // getting the class of the local variable
-                        } else if (literal.getParent() instanceof CtLocalVariable) {
-                            return ((CtLocalVariable) literal.getParent())
-                                    .getType()
-                                    .getActualClass().isArray();
-                        }
+                        return getNullClass(literal).isArray();
                     }
                 } catch (Exception e) {
 
@@ -110,7 +87,7 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
 
 
         if(original instanceof CtLiteral && ((CtLiteral)original).getValue() == null) {
-            String type = constructArraysForNull((CtLiteral)original);
+            String type = getNullClass((CtLiteral)original).getTypeName();
             String additionalElement = constructAdditionalElement(getSimpleType(type));
             String array = constructEmptyArray(type,additionalElement,false);
             CtExpression compiled = factory.createCodeSnippetExpression(array).compile();
@@ -123,50 +100,6 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
             // empty array
             values.add(compiled);
             return values;
-
-
-
-/*
-            //System.out.println("in null");
-            String type = constructArraysForNull((CtLiteral)original);
-
-            // array with one element
-            //System.out.println("type: " + type);
-            String additionalElement = constructAdditionalElement(type);
-            //System.out.println("additional: " + additionalElement);
-            String array = constructEmptyArray(type,additionalElement,false);
-            //System.out.println("array: "+array);
-            values.add(factory.createCodeSnippetExpression(array));
-
-
-            // empty array
-            array = constructEmptyArray(type,"",true);
-            /*System.out.println("array: " + array);
-            CtCodeSnippetExpression e = new CtCodeSnippetExpressionImpl();
-            e.setValue("new int[][]{}");*/
-          /*  CtExpression compiled = factory.createCodeSnippetExpression(array).compile();
-//            boolean added = values.add(factory.createCodeSnippetExpression(array));
-            values.add(compiled);
-
-            //boolean added = values.add(e);
-            //System.out.println(values.size());
-            //System.out.println(added);
-            /*System.out.println("next");
-            CtExpression e = factory.createCodeSnippetExpression(array);
-            CtExpression n = SerializationUtils.clone(e);
-            System.out.println(n);
-            added = values.add(new CtNewArrayImpl<>());
-            System.out.println(values.size());
-            System.out.println(added);*/
-            /*ArrayList<Integer> ai = new ArrayList<>();
-            Integer test = new Integer(1);
-            Integer test2 = test;
-            boolean ad = ai.add(test);
-            System.out.println("ad: " + ad);
-            ad = ai.add(test);
-            System.out.println("ad: " + ad);
-            System.out.println(ai.size());*/
-            //return values;
         }
 
         CtNewArrayImpl castedOriginal = (CtNewArrayImpl) original;
@@ -185,6 +118,7 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
             System.out.println("compiled: " + compiled);
 
             values.add(compiled);
+            values.add(factory.createLiteral(null));
         }
         else {
 
@@ -202,6 +136,7 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
                 cloneEmpty.setElements(Collections.EMPTY_LIST);
                 values.add(cloneEmpty);
             }
+            values.add(factory.createLiteral(null));
         }
         return values;
     }
@@ -242,6 +177,34 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
         System.out.println("--name: " + name);
         return name;
 
+    }
+
+    private Class getNullClass(CtLiteral original) {
+
+        // getting the class of the expected parameter
+        if (original.getParent() instanceof CtInvocation<?>) {
+            final CtInvocation<?> parent = (CtInvocation<?>) original.getParent();
+            return parent.getExecutable()
+                    .getDeclaration()
+                    .getParameters()
+                    .get(parent.getArguments().indexOf(original))
+                    .getType()
+                    .getActualClass();
+
+            // getting the class of the assignee
+        } else if (original.getParent() instanceof CtAssignment) {
+            return ((CtAssignment) original.getParent())
+                    .getAssigned()
+                    .getType()
+                    .getActualClass();
+
+            // getting the class of the local variable
+        } else if (original.getParent() instanceof CtLocalVariable) {
+            return ((CtLocalVariable) original.getParent())
+                    .getType()
+                    .getActualClass();
+        }
+        return null;
     }
 
     private String constructAdditionalElement(String type) {
