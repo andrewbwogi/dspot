@@ -107,9 +107,11 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
         System.out.println("original: " + original);
         Set<CtExpression<CtNewArrayImpl>> values = new HashSet<>();
 
+
+
         if(original instanceof CtLiteral && ((CtLiteral)original).getValue() == null) {
             String type = constructArraysForNull((CtLiteral)original);
-            String additionalElement = constructAdditionalElement(type);
+            String additionalElement = constructAdditionalElement(getSimpleType(type));
             String array = constructEmptyArray(type,additionalElement,false);
             CtExpression compiled = factory.createCodeSnippetExpression(array).compile();
 
@@ -172,9 +174,16 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
         if(list.isEmpty())
         {
             System.out.println("--listempty");
-            String additionalElement = constructAdditionalElement(original.getType().toString());
+            System.out.println("simple name: " + original.getType().getSimpleName());
+
+            String additionalElement = constructAdditionalElement(getSimpleType(original.getType().getSimpleName()));
+            System.out.println("additional element: " + additionalElement);
             String array = constructEmptyArray(original.getType().toString(),additionalElement,false);
+            System.out.println("array: " + array);
+
             CtExpression compiled = factory.createCodeSnippetExpression(array).compile();
+            System.out.println("compiled: " + compiled);
+
             values.add(compiled);
         }
         else {
@@ -195,6 +204,13 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
             }
         }
         return values;
+    }
+
+    private String getSimpleType(String simpleName){
+        int index = simpleName.indexOf("[");
+        simpleName = simpleName.substring(0,index);
+        System.out.println("newsimple: " + simpleName);
+        return simpleName;
     }
     // todo refactor so matches does not duplicate the code below
     private String constructArraysForNull(CtLiteral original) {
@@ -229,32 +245,26 @@ public class ArrayAmplifier extends AbstractLiteralAmplifier<CtNewArrayImpl>  {
     }
 
     private String constructAdditionalElement(String type) {
-        type = type.toLowerCase().substring(0,3);
-        if(type.equals("int")){
+        type = type.toLowerCase();
+        if(type.equals("int") || type.equals("integer") || type.equals("short") || type.equals("byte")){
             return "1";
         }
-        else if(type.equals("sho")){
-            return "1";
-        }
-        else if(type.equals("lon")){
+        else if(type.equals("long")){
             return "1L";
         }
-        else if(type.equals("flo")){
+        else if(type.equals("float")){
             return "1.1F";
         }
-        else if(type.equals("dou")){
+        else if(type.equals("double")){
             return "1.1";
         }
-        else if(type.equals("byt")){
-            return "1";
-        }
-        else if(type.equals("boo")){
+        else if(type.equals("boolean")){
             return "true";
         }
-        else if(type.equals("cha")){
+        else if(type.equals("char") || type.equals("character")){
             return "'a'";
         }
-        else if(type.equals("Str")){
+        else if(type.equals("string")){
             return "\"a\"";
         }
         else {
