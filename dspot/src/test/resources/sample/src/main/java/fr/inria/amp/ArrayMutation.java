@@ -2,15 +2,11 @@ package fr.inria.amp;
 
 public class ArrayMutation {
 
-    public void methodArray() {
+    public void int2DArray() {
 	int[][] literalArray = new int[][]{{3,4},{1,2}};
     }
 
-    public void methodEmptyArray() {
-	int[][] literalEmptyArray = new int[][]{};
-    }
-
-    public void methodNullArray() {
+    public void nullArray() {
 	int[][] literalNullArray = null;
     }
 

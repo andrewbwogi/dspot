@@ -42,7 +42,7 @@ public class ArrayAmplifierTest extends AbstractTest {
      */
     @Test
     public void testArrayMutation() {
-        final String methodName = "methodArray";
+        final String methodName = "int2DArray";
         List<String> expectedValues = Arrays.asList("new int[][]{ new int[]{ 3, 4 }, new int[]{ 1, 2 }, new int[]{ 3, 4 } }",
                 "new int[][]{ new int[]{ 1, 2 } }","new int[][]{  }","null");
         callAssertions(methodName,expectedValues);
@@ -50,7 +50,7 @@ public class ArrayAmplifierTest extends AbstractTest {
 
     @Test
     public void testNullArrayMutation() {
-        final String methodName = "methodNullArray";
+        final String methodName = "nullArray";
         List<String> expectedValues = Arrays.asList("new int[][]{ new int[]{ 1 } }","new int[][]{  }");
         callAssertions(methodName,expectedValues);
     }
