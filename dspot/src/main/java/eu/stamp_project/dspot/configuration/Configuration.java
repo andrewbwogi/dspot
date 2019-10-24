@@ -64,6 +64,7 @@ public class Configuration {
     private static DSpotCompiler compiler;
     private static AutomaticBuilder automaticBuilder;
     private static TestFinder testFinder;
+    private static long startTime;
 
     /**
      *
@@ -103,6 +104,7 @@ public class Configuration {
     }
 
     public static void run() {
+        startTime = System.currentTimeMillis();
         testFinder = new TestFinder(
                 Arrays.stream(inputConfiguration.getExcludedClasses().split(",")).collect(Collectors.toList()),
                 Arrays.stream(inputConfiguration.getExcludedTestCases().split(",")).collect(Collectors.toList())
@@ -150,6 +152,7 @@ public class Configuration {
                 collector
 
         );
+        Checker.postChecking(Configuration.getInputConfiguration());
     }
 
     private static void initHelpers(InputConfiguration configuration, Factory factory){
@@ -238,6 +241,20 @@ public class Configuration {
         }
     }
 
+
+    public void report(List<CtType<?>> amplifiedTestClasses) {
+        LOGGER.info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");
+        final long elapsedTime = System.currentTimeMillis() - startTime;
+        LOGGER.info("Elapsed time {} ms", elapsedTime);
+        // global report handling
+        GLOBAL_REPORT.output(Configuration.getInputConfiguration().getOutputDirectory());
+        DSpotCache.reset();
+        GLOBAL_REPORT.reset();
+        AmplificationHelper.reset();
+        DSpotPOMCreator.delete();
+        // Send info collected.
+        Configuration.getCollector().sendInfo();
+    }
 
     public static List<CtType<?>> getTestClassesToBeAmplified() {
         return testClassesToBeAmplified;
@@ -431,6 +448,8 @@ public class Configuration {
             //ignored
         }
     }
+
+
 
     /**
      *
