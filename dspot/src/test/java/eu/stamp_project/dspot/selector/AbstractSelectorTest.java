@@ -5,6 +5,7 @@ import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.configuration.Configuration;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.DSpotCache;
 import eu.stamp_project.utils.DSpotUtils;
@@ -73,7 +74,7 @@ public abstract class AbstractSelectorTest {
         this.configuration.setOutputDirectory(outputDirectory);
         this.configuration.setGregorMode(true);
         this.builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        String dependencies = Main.completeDependencies(configuration, this.builder);
+        String dependencies = Configuration.completeDependencies(configuration, this.builder);
         DSpotUtils.init(false, outputDirectory,
                 this.configuration.getFullClassPathWithExtraDependencies(),
                 this.getPathToAbsoluteProjectRoot()

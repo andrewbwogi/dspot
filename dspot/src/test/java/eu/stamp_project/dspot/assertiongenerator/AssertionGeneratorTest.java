@@ -1,10 +1,10 @@
 package eu.stamp_project.dspot.assertiongenerator;
 
-import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.AbstractTestOnSample;
 import eu.stamp_project.dspot.amplifier.value.ValueCreator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionRemover;
+import eu.stamp_project.dspot.configuration.Configuration;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.DSpotUtils;
@@ -62,7 +62,7 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
                 configuration.getAbsolutePathToProjectRoot(), configuration.getClasspathClassesProject(), 10000
         );
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
-        dependencies = Main.completeDependencies(configuration, builder);
+        dependencies = Configuration.completeDependencies(configuration, builder);
         DSpotUtils.init(false, "target/dspot/",
                 configuration.getFullClassPathWithExtraDependencies(),
                 "src/test/resources/sample/"
