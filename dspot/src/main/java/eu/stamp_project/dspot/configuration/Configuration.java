@@ -1,10 +1,12 @@
 package eu.stamp_project.dspot.configuration;
 
+import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.automaticbuilder.maven.DSpotPOMCreator;
-import eu.stamp_project.dspot.Amplification;
+import eu.stamp_project.dspot.AmplificationException;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.dspot.amplifier.Amplifier;
+import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
 import eu.stamp_project.dspot.common.testTuple;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
@@ -22,6 +24,7 @@ import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.options.check.InputErrorException;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.GlobalReport;
+import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.error.ErrorReportImpl;
 import eu.stamp_project.utils.report.output.Output;
 import eu.stamp_project.utils.report.output.OutputReportImpl;
@@ -48,6 +51,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
+import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_EXEC_TEST_BEFORE_AMPLIFICATION;
+import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_PRE_SELECTION;
 
 public class Configuration {
 
@@ -65,6 +70,8 @@ public class Configuration {
     private static AutomaticBuilder automaticBuilder;
     private static TestFinder testFinder;
     private static long startTime;
+    private static AssertionGenerator assertionGenerator;
+
 
     /**
      *
@@ -152,6 +159,7 @@ public class Configuration {
                 collector
 
         );
+        assertionGenerator = new AssertionGenerator(getInputConfiguration().getDelta(), compiler);
         Checker.postChecking(Configuration.getInputConfiguration());
     }
 
@@ -239,6 +247,10 @@ public class Configuration {
         } catch (IOException ignored) {
             // ignored
         }
+    }
+
+    public static AssertionGenerator getAssertionGenerator() {
+        return assertionGenerator;
     }
 
 
@@ -358,19 +370,11 @@ public class Configuration {
 
     final List<CtType<?>> amplifiedTestClasses = new ArrayList<>();
 
-    Amplification testAmplification;
 
     long time;
 
     public testTuple preAmplification(CtType<?> testClassToBeAmplified, List<String> testMethodsToBeAmplifiedAsString){
         Configuration.getInputAmplDistributor().resetAmplifiers(testClassToBeAmplified);
-        testAmplification = new Amplification(
-                Configuration.getInputConfiguration().getDelta(),
-                Configuration.getCompiler(),
-                Configuration.getTestSelector(),
-                Configuration.getInputAmplDistributor(),
-                Configuration.getInputConfiguration().getNbIteration()
-        );
         final List<CtMethod<?>> testMethodsToBeAmplified =
                 Configuration.getTestFinder().findTestMethods(testClassToBeAmplified, testMethodsToBeAmplifiedAsString);
 
@@ -399,7 +403,7 @@ public class Configuration {
 
         //Optimization: this object is not required anymore
         //and holds a dictionary with large number of cloned CtMethods.
-        testAmplification = null;
+        //testAmplification = null;
         //but it is clear before iterating again for next test class
         LOGGER.debug("OPTIMIZATION: GC invoked");
         System.gc(); //Optimization: cleaning up heap before printing the amplified class
@@ -419,11 +423,6 @@ public class Configuration {
 
         amplifiedTestClasses.add(amplifiedTestClass);
         cleanAfterAmplificationOfOneTestClass(Configuration.getCompiler(), testClassToBeAmplified);
-    }
-
-
-    public Amplification getTestAmplifier(){
-        return testAmplification;
     }
 
     public List<CtType<?>> getAmplifiedTestClasses(){
@@ -454,6 +453,89 @@ public class Configuration {
     /**
      *
      * END DSPOT
+     *
+     */
+
+    /**
+     *
+     *
+     *
+     * FROM AMPLIFICATION
+     *
+     *
+     */
+
+    public List<CtMethod<?>> firstSelectorSetup(CtType<?> testClassToBeAmplified, List<CtMethod<?>> testMethodsToBeAmplified) throws Exception {
+
+        if(testMethodsToBeAmplified.isEmpty()) {
+            LOGGER.warn("No test provided for amplification in class {}", testClassToBeAmplified.getQualifiedName());
+            //return Collections.emptyList();
+            throw new Exception();
+
+        }
+
+        LOGGER.info("Amplification of {} ({} test(s))", testClassToBeAmplified.getQualifiedName(), testMethodsToBeAmplified.size());
+        LOGGER.info("Assertion amplification of {} ({} test(s))", testClassToBeAmplified.getQualifiedName(), testMethodsToBeAmplified.size());
+
+        if (!getTestSelector().init()) {
+            //return Collections.emptyList();
+            throw new Exception();
+
+        }
+        final List<CtMethod<?>> passingTests;
+        try {
+            passingTests =
+                    TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
+                            testClassToBeAmplified,
+                            testMethodsToBeAmplified,
+                            getCompiler()
+                    );
+        } catch (Exception | java.lang.Error e) {
+            Main.GLOBAL_REPORT.addError(new Error(ERROR_EXEC_TEST_BEFORE_AMPLIFICATION, e));
+            //return Collections.emptyList();
+            throw new Exception();
+        }
+        final List<CtMethod<?>> selectedToBeAmplified;
+        try {
+            // set up the selector with tests to amplify
+            selectedToBeAmplified = getTestSelector().selectToAmplify(testClassToBeAmplified, passingTests);
+        } catch (Exception | java.lang.Error e) {
+            Main.GLOBAL_REPORT.addError(new Error(ERROR_PRE_SELECTION, e));
+            //return Collections.emptyList();
+            throw new Exception();
+        }
+        return selectedToBeAmplified;
+    }
+
+    // todo change to throwing assertionexception
+    public List<CtMethod<?>> fullSelectorSetup(CtType<?> testClassToBeAmplified,
+                                               List<CtMethod<?>> currentTestListToBeAmplified) throws AmplificationException {
+        final List<CtMethod<?>> selectedToBeAmplified;
+        try {
+            // set up the selector with tests to amplify
+            selectedToBeAmplified = getTestSelector().selectToAmplify(testClassToBeAmplified, currentTestListToBeAmplified);
+        } catch (Exception | java.lang.Error e) {
+            Main.GLOBAL_REPORT.addError(new Error(ERROR_PRE_SELECTION, e));
+            //return Collections.emptyList();
+            throw new AmplificationException("");
+        }
+        if (selectedToBeAmplified.isEmpty()) {
+            LOGGER.warn("No test could be selected to be amplified.");
+            //return selectedToBeAmplified; // todo should we break the loop?
+            throw new AmplificationException("");
+        }
+        LOGGER.info("{} tests selected to be amplified over {} available tests",
+                selectedToBeAmplified.size(),
+                currentTestListToBeAmplified.size()
+        );
+        return selectedToBeAmplified;
+    }
+
+    /**
+     *
+     *
+     * END AMPLIFICATION
+     *
      *
      */
 
