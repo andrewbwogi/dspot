@@ -77,40 +77,15 @@ public class Configuration {
      *
      * FOM MAIN
      *
-     * @param args
+     * @param
      */
-    public Configuration(String[] args) {
-        inputConfiguration = new InputConfiguration();
-        final CommandLine commandLine = new CommandLine(inputConfiguration);
-        try {
-            commandLine.parseArgs(args);
-        } catch (Exception e) {
-            e.printStackTrace();
-            commandLine.usage(System.err);
-            return;
-        }
-        if (commandLine.isUsageHelpRequested()) {
-            commandLine.usage(System.out);
-            return;
-        }
-        if (commandLine.isVersionHelpRequested()) {
-            commandLine.printVersionHelp(System.out);
-            return;
-        }
-        if (inputConfiguration.shouldRunExample()) {
-            inputConfiguration.configureExample();
-        }
-        try {
-            Checker.preChecking(inputConfiguration);
-        } catch (InputErrorException e) {
-            e.printStackTrace();
-            commandLine.usage(System.err);
-            return;
-        }
-        verbose = inputConfiguration.isVerbose();
+
+    public Configuration(InputConfiguration inputConfiguration) {
+        this.inputConfiguration = inputConfiguration;
     }
 
     public static void run() {
+        verbose = inputConfiguration.isVerbose();
         startTime = System.currentTimeMillis();
         testFinder = new TestFinder(
                 Arrays.stream(inputConfiguration.getExcludedClasses().split(",")).collect(Collectors.toList()),

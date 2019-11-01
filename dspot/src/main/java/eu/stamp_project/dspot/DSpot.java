@@ -9,6 +9,7 @@ import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.error.Error;
 import eu.stamp_project.utils.report.output.Output;
 import eu.stamp_project.utils.test_finder.TestFinder;
@@ -36,8 +37,8 @@ public class DSpot {
 
     Configuration configuration;
 
-    public DSpot(String[] args){
-        configuration = new Configuration(args);
+    public DSpot(InputConfiguration inputConfiguration){
+        configuration = new Configuration(inputConfiguration);
         configuration.run();
     }
 
