@@ -50,11 +50,15 @@ public class TestCompiler {
 
     private int numberProcessors;
 
-    private TestCompiler(int numberProcessors,
+    private TestRunner testRunner;
+
+    public TestCompiler(int numberProcessors,
                          boolean shouldExecuteTestsInParallel,
                          String absolutePathToProjectRoot,
                          String classpathClassesProject,
-                         int timeoutInMs) {
+                         int timeoutInMs,
+                         String preGoals,
+                         boolean shouldUseMavenToExecuteTest) {
         this.numberProcessors = numberProcessors;
         this.shouldExecuteTestsInParallel = shouldExecuteTestsInParallel;
         this.absolutePathToProjectRoot = absolutePathToProjectRoot;
@@ -64,16 +68,7 @@ public class TestCompiler {
                 classpathClassesProject,
                 absolutePathToProjectRoot + "/" + DSpotUtils.PATH_TO_DSPOT_DEPENDENCIES
         );
-    }
-
-    private static TestCompiler _instance;
-
-    public static void init(int numberProcessors,
-                            boolean shouldExecuteTestsInParallel,
-                            String absolutePathToProjectRoot,
-                            String classpathClassesProject,
-                            int timeoutInMs) {
-        _instance = new TestCompiler(numberProcessors, shouldExecuteTestsInParallel, absolutePathToProjectRoot, classpathClassesProject, timeoutInMs);
+        this.testRunner = new TestRunner(this.absolutePathToProjectRoot, preGoals, shouldUseMavenToExecuteTest);
     }
 
     /**
@@ -85,12 +80,12 @@ public class TestCompiler {
      * @param currentTestList test methods to be run
      * @return Results of tests' run
      */
-    public static List<CtMethod<?>> compileRunAndDiscardUncompilableAndFailingTestMethods(CtType classTest,
+    public List<CtMethod<?>> compileRunAndDiscardUncompilableAndFailingTestMethods(CtType classTest,
                                                                                     List<CtMethod<?>> currentTestList,
                                                                                     DSpotCompiler compiler) {
         CtType amplifiedTestClass = CloneHelper.cloneTestClassAndAddGivenTest(classTest, currentTestList);
         try {
-            final TestResult result = TestCompiler.compileAndRun(
+            final TestResult result = this.compileAndRun(
                     amplifiedTestClass,
                     compiler,
                     currentTestList
@@ -117,16 +112,16 @@ public class TestCompiler {
      * that contains the result of the execution of test methods if everything went fine, null otherwise.
      * @throws AmplificationException in case the compilation failed or a timeout has been thrown.
      */
-    public static TestResult compileAndRun(CtType<?> testClass,
+    public TestResult compileAndRun(CtType<?> testClass,
                                              DSpotCompiler compiler,
                                              List<CtMethod<?>> testsToRun) throws AmplificationException {
         final String classPath =  DSpotUtils.createPath(
-                        _instance.classpathClassesProject,
+                        classpathClassesProject,
                         compiler.getBinaryOutputDirectory().getAbsolutePath(),
                         compiler.getDependencies()
         );
         //Add parallel test execution support (JUnit4, JUnit5) for execution method (CMD, Maven)
-        if (_instance.shouldExecuteTestsInParallel) {
+        if (shouldExecuteTestsInParallel) {
             CloneHelper.addParallelExecutionAnnotation (testClass, testsToRun);
             //Create a junit-platform.properties for JUnit5 parallel execution
             if (TestFramework.isJUnit5(testsToRun.get(0))) {
@@ -134,7 +129,7 @@ public class TestCompiler {
                 Properties props = new Properties();
                 props.setProperty("junit.jupiter.execution.parallel.enabled", "true");
                 props.setProperty("junit.jupiter.execution.parallel.config.strategy", "fixed");
-                props.setProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", Integer.toString(_instance.numberProcessors));
+                props.setProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", Integer.toString(this.numberProcessors));
                 String rootPath = classPath.split(":")[0];
                 String junit5PropertiesPath = rootPath + "junit-platform.properties";
                 try {
@@ -156,12 +151,12 @@ public class TestCompiler {
             }
         }
 
-        testsToRun = TestCompiler.compileAndDiscardUncompilableMethods(compiler, testClass, testsToRun);
-        EntryPoint.timeoutInMs = 1000 + (_instance.timeoutInMs * testsToRun.size());
+        testsToRun = this.compileAndDiscardUncompilableMethods(compiler, testClass, testsToRun);
+        EntryPoint.timeoutInMs = 1000 + (timeoutInMs * testsToRun.size());
         if (testClass.getModifiers().contains(ModifierKind.ABSTRACT)) { // if the test class is abstract, we use one of its implementation
-            return TestRunner.runSubClassesForAbstractTestClass(testClass, testsToRun, classPath);
+            return testRunner.runSubClassesForAbstractTestClass(testClass, testsToRun, classPath);
         } else {
-            return TestRunner.runGivenTestMethods(testClass, testsToRun, classPath);
+            return testRunner.runGivenTestMethods(testClass, testsToRun, classPath);
         }
     }
 
@@ -177,7 +172,7 @@ public class TestCompiler {
      * @throws AmplificationException in case the compilation thrown an exception.
      *                                This Exception is not thrown when the compilation fails but rather when the arguments are wrong.
      */
-    public static List<CtMethod<?>> compileAndDiscardUncompilableMethods(DSpotCompiler compiler,
+    public List<CtMethod<?>> compileAndDiscardUncompilableMethods(DSpotCompiler compiler,
                                                                          CtType<?> testClassToBeCompiled,
                                                                          List<CtMethod<?>> testsToRun) throws AmplificationException {
         final List<CtMethod<?>> uncompilableMethod = compileAndDiscardUncompilableMethods(compiler, testClassToBeCompiled, 0);
@@ -189,12 +184,12 @@ public class TestCompiler {
         return testsToRun;
     }
 
-    private static List<CtMethod<?>> compileAndDiscardUncompilableMethods(DSpotCompiler compiler,
+    private List<CtMethod<?>> compileAndDiscardUncompilableMethods(DSpotCompiler compiler,
                                                                           CtType<?> testClassToBeCompiled,
                                                                           int numberOfTry) {
 
         printJavaFileAndDeleteClassFile(compiler, testClassToBeCompiled);
-        final List<CategorizedProblem> problems = compiler.compileAndReturnProblems(_instance.classpathToCompile)
+        final List<CategorizedProblem> problems = compiler.compileAndReturnProblems(classpathToCompile)
                 .stream()
                 .filter(IProblem::isError)
                 .collect(Collectors.toList());
@@ -282,6 +277,6 @@ public class TestCompiler {
     }
 
     public static void setTimeoutInMs(int timeoutInMs) {
-        _instance.timeoutInMs = timeoutInMs;
+        timeoutInMs = timeoutInMs;
     }
 }

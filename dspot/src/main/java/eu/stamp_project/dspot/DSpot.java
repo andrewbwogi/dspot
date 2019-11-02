@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +41,8 @@ public class DSpot {
         configuration.run();
     }
 
+    private TestCompiler testCompiler;
+
     public DSpot(double delta,
                  TestFinder testFinder,
                  DSpotCompiler compiler,
@@ -50,7 +51,8 @@ public class DSpot {
                  Output output,
                  int numberOfIterations,
                  boolean shouldGenerateAmplifiedTestClass,
-                 AutomaticBuilder automaticBuilder) {
+                 AutomaticBuilder automaticBuilder,
+                 TestCompiler testCompiler) {
         Configuration.getInputConfiguration().setDelta(delta);
         Configuration.setTestSelector(testSelector);
         Configuration.setInputAmplDistributor(inputAmplDistributor);
@@ -60,6 +62,7 @@ public class DSpot {
         Configuration.setOutput(output);
         Configuration.getInputConfiguration().setGenerateAmplifiedTestClass(shouldGenerateAmplifiedTestClass);
         Configuration.setAutomaticBuilder(automaticBuilder);
+        Configuration.setTestCompiler(testCompiler);
     }
 
     public void run() {
@@ -220,7 +223,7 @@ public class DSpot {
         // final check on A-amplified test, see if they all pass.
         // If they don't, we just discard them.
         final List<CtMethod<?>> amplifiedPassingTests =
-                TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
+                configuration.getTestCompiler().compileRunAndDiscardUncompilableAndFailingTestMethods(
                         classTest,
                         testsWithAssertions,
                         configuration.getCompiler()

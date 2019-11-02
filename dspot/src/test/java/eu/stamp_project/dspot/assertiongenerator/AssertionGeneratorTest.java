@@ -11,6 +11,7 @@ import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.RandomHelper;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
+import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.program.InputConfiguration;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -50,6 +51,8 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
 
     private String  classpathClassesProject;
 
+    protected TestCompiler testCompiler;
+
     private static InputConfiguration configuration;
 
     private static String dependencies;
@@ -58,9 +61,7 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
     public static void setUpClass() {
         configuration = new InputConfiguration();
         configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
-        TestCompiler.init(0, false,
-                configuration.getAbsolutePathToProjectRoot(), configuration.getClasspathClassesProject(), 10000
-        );
+
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);
         dependencies = Configuration.completeDependencies(configuration, builder);
         DSpotUtils.init(false, "target/dspot/",
@@ -80,7 +81,15 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
         );
         RandomHelper.setSeedRandom(72L);
         ValueCreator.count = 0;
-        this.assertionGenerator = new AssertionGenerator(0.1D, compiler);
+        testCompiler =   new TestCompiler(0,
+                false,
+                configuration.getAbsolutePathToProjectRoot(),
+                configuration.getClasspathClassesProject(),
+                10000,
+                "",
+                false
+        );
+        this.assertionGenerator = new AssertionGenerator(0.1D, compiler, testCompiler);
         super.setUp();
     }
 

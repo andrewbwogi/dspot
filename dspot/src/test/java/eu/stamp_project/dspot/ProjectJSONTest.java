@@ -57,6 +57,8 @@ public class ProjectJSONTest extends AbstractTestOnSample {
 
     private TestSelector testSelector;
 
+    private TestCompiler testCompiler;
+
     @Before
     public void setUp() {
         super.setUp();
@@ -80,8 +82,14 @@ public class ProjectJSONTest extends AbstractTestOnSample {
         launcher.buildModel();
         this.factory = launcher.getFactory();
         TestFramework.init(this.factory);
-        TestCompiler.init(0, false, this.getPathToProjectRoot(), this.configuration.getClasspathClassesProject(), 10000);
-        TestRunner.init(this.getPathToProjectRoot(), "", false);
+        testCompiler = new TestCompiler(0,
+                false,
+                this.getPathToProjectRoot(),
+                this.configuration.getClasspathClassesProject(),
+                10000,
+                "",
+                false
+        );
         AssertionGeneratorUtils.init(false);
         DSpotPOMCreator.createNewPom(configuration);
         RandomHelper.setSeedRandom(72L);
@@ -112,7 +120,8 @@ public class ProjectJSONTest extends AbstractTestOnSample {
                 Output.get(configuration),
                 1,
                 false,
-                builder
+                builder,
+                testCompiler
         );
         final CtClass<?> clone = findClass("fr.inria.amp.TestJavaPoet").clone();
 

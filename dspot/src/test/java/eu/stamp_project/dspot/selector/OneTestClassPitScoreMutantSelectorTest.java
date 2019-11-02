@@ -4,6 +4,7 @@ import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.configuration.Configuration;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
+import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.options.AutomaticBuilderEnum;
 import eu.stamp_project.utils.pit.AbstractPitResult;
 import eu.stamp_project.utils.program.InputConfiguration;
@@ -31,6 +32,8 @@ public class OneTestClassPitScoreMutantSelectorTest {
 
     private InputConfiguration configuration;
 
+    private TestRunner testRunner;
+
     @Before
     public void setUp() {
         Main.verbose = true;
@@ -49,6 +52,7 @@ public class OneTestClassPitScoreMutantSelectorTest {
         this.configuration.setFactory(factory);
         this.configuration.setTestClasses(Collections.singletonList(FULL_QUALIFIED_NAME_TEST_CLASS));
         this.configuration.setTargetOneTestClass(true);
+        this.testRunner = new TestRunner(this.configuration.getAbsolutePathToProjectRoot(), "", false);
     }
 
     @Test

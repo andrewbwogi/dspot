@@ -18,7 +18,6 @@ import eu.stamp_project.utils.collector.Collector;
 import eu.stamp_project.utils.collector.CollectorFactory;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
 import eu.stamp_project.utils.options.AmplifierEnum;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.options.check.InputErrorException;
@@ -39,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-import spoon.reflect.factory.Factory;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,6 +69,7 @@ public class Configuration {
     private static TestFinder testFinder;
     private static long startTime;
     private static AssertionGenerator assertionGenerator;
+    private static TestCompiler testCompiler;
 
 
     /**
@@ -97,8 +96,17 @@ public class Configuration {
                 inputConfiguration,
                 dependencies
         );
-        initHelpers(inputConfiguration, compiler.getLauncher().getFactory());
         inputConfiguration.setFactory(compiler.getLauncher().getFactory());
+        initHelpers(inputConfiguration);
+        testCompiler = new TestCompiler(
+                inputConfiguration.getNumberParallelExecutionProcessors(),
+                inputConfiguration.shouldExecuteTestsInParallel(),
+                inputConfiguration.getAbsolutePathToProjectRoot(),
+                inputConfiguration.getClasspathClassesProject(),
+                inputConfiguration.getTimeOutInMs(),
+                inputConfiguration.getPreGoalsTestExecution(),
+                inputConfiguration.shouldUseMavenToExecuteTest()
+        );
         final EmailSender emailSender = new EmailSender(
                 inputConfiguration.getSmtpUsername(),
                 inputConfiguration.getSmtpPassword(),
@@ -118,8 +126,7 @@ public class Configuration {
         );
         testClassesToBeAmplified = testFinder.findTestClasses(inputConfiguration.getTestClasses());
         testMethodsToBeAmplifiedNames = inputConfiguration.getTestCases();
-        testSelector = inputConfiguration.getSelector().buildSelector(automaticBuilder, inputConfiguration);
-        final List<Amplifier> amplifiers = inputConfiguration
+        testSelector = inputConfiguration.getSelector().buildSelector(automaticBuilder, inputConfiguration);        final List<Amplifier> amplifiers = inputConfiguration
                 .getAmplifiers()
                 .stream()
                 .map(AmplifierEnum::getAmplifier)
@@ -134,12 +141,12 @@ public class Configuration {
                 collector
 
         );
-        assertionGenerator = new AssertionGenerator(getInputConfiguration().getDelta(), compiler);
+        assertionGenerator = new AssertionGenerator(getInputConfiguration().getDelta(), compiler, testCompiler);
         Checker.postChecking(Configuration.getInputConfiguration());
     }
 
-    private static void initHelpers(InputConfiguration configuration, Factory factory){
-        TestFramework.init(factory);
+    private static void initHelpers(InputConfiguration configuration){
+        TestFramework.init(configuration.getFactory());
         AmplificationHelper.init(
                 configuration.getTimeOutInMs(),
                 configuration.shouldGenerateAmplifiedTestClass(),
@@ -148,13 +155,6 @@ public class Configuration {
         RandomHelper.setSeedRandom(configuration.getSeed());
         createOutputDirectories(configuration);
         DSpotCache.init(configuration.getCacheSize());
-        TestCompiler.init(
-                configuration.getNumberParallelExecutionProcessors(),
-                configuration.shouldExecuteTestsInParallel(),
-                configuration.getAbsolutePathToProjectRoot(),
-                configuration.getClasspathClassesProject(),
-                configuration.getTimeOutInMs()
-        );
         DSpotUtils.init(
                 configuration.withComment(),
                 configuration.getOutputDirectory(),
@@ -164,11 +164,6 @@ public class Configuration {
         initSystemProperties(configuration.getSystemProperties());
         AssertionGeneratorUtils.init(configuration.shouldAllowPathInAssertion());
         CloneHelper.init(configuration.shouldExecuteTestsInParallel());
-        TestRunner.init(
-                configuration.getAbsolutePathToProjectRoot(),
-                configuration.getPreGoalsTestExecution(),
-                configuration.shouldUseMavenToExecuteTest()
-        );
     }
 
     private static void initSystemProperties(String systemProperties) {
@@ -226,6 +221,14 @@ public class Configuration {
 
     public static AssertionGenerator getAssertionGenerator() {
         return assertionGenerator;
+    }
+
+    public static void setTestCompiler(TestCompiler testCompiler) {
+        Configuration.testCompiler = testCompiler;
+    }
+
+    public static TestCompiler getTestCompiler() {
+        return testCompiler;
     }
 
 
@@ -326,6 +329,7 @@ public class Configuration {
     public static void setTestFinder(TestFinder testFinder) {
         Configuration.testFinder = testFinder;
     }
+
 
     /**
      *
@@ -460,7 +464,7 @@ public class Configuration {
         final List<CtMethod<?>> passingTests;
         try {
             passingTests =
-                    TestCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
+                    testCompiler.compileRunAndDiscardUncompilableAndFailingTestMethods(
                             testClassToBeAmplified,
                             testMethodsToBeAmplified,
                             getCompiler()

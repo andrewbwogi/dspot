@@ -1,6 +1,5 @@
 package eu.stamp_project;
 
-import eu.stamp_project.automaticbuilder.AutomaticBuilder;
 import eu.stamp_project.dspot.DSpot;
 import eu.stamp_project.utils.options.check.Checker;
 import eu.stamp_project.utils.options.check.InputErrorException;
@@ -38,6 +37,7 @@ public class Main {
     public static InputConfiguration parse(String[] args) {
         InputConfiguration inputConfiguration = new InputConfiguration();
         final CommandLine commandLine = new CommandLine(inputConfiguration);
+        commandLine.setUsageHelpWidth(120);
         try {
             commandLine.parseArgs(args);
         } catch (Exception e) {

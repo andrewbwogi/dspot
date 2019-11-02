@@ -66,6 +66,10 @@ public abstract class AbstractSelectorTest {
 
     protected DSpotCompiler compiler;
 
+    protected TestRunner testRunner;
+
+    protected TestCompiler testCompiler;
+
     @Before
     public void setUp() throws Exception {
         Main.verbose = true;
@@ -90,8 +94,15 @@ public abstract class AbstractSelectorTest {
         launcher.buildModel();
         this.factory = launcher.getFactory();
         TestFramework.init(this.factory);
-        TestCompiler.init(0, false, this.getPathToAbsoluteProjectRoot(), this.configuration.getClasspathClassesProject(), 10000);
-        TestRunner.init(this.getPathToAbsoluteProjectRoot(), "", false);
+        this.testRunner = new TestRunner(this.getPathToAbsoluteProjectRoot(), "", false);
+        this.testCompiler = new TestCompiler(0,
+                false,
+                this.getPathToAbsoluteProjectRoot(),
+                this.configuration.getClasspathClassesProject(),
+                10000,
+                "",
+                false
+        );
         AssertionGeneratorUtils.init(false);
         DSpotPOMCreator.createNewPom(configuration);
         RandomHelper.setSeedRandom(72L);

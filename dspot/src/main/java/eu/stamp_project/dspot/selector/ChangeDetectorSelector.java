@@ -16,17 +16,13 @@ import eu.stamp_project.utils.AmplificationHelper;
 import eu.stamp_project.utils.Counter;
 import eu.stamp_project.utils.DSpotUtils;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
-import eu.stamp_project.utils.execution.TestRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Benjamin DANGLOT
@@ -47,11 +43,12 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
 
     private String secondVersionTargetClasses;
 
-    public ChangeDetectorSelector(AutomaticBuilder automaticBuilder, InputConfiguration configuration) {
+    public ChangeDetectorSelector(AutomaticBuilder automaticBuilder,
+                                  InputConfiguration configuration) {
         super(automaticBuilder, configuration);
         this.failurePerAmplifiedTest = new HashMap<>();
-        this.pathToFirstVersionOfProgram = configuration.getAbsolutePathToProjectRoot();
-        this.pathToSecondVersionOfProgram = configuration.getAbsolutePathToSecondVersionProjectRoot();
+        this.pathToFirstVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToProjectRoot());
+        this.pathToSecondVersionOfProgram = DSpotUtils.shouldAddSeparator.apply(configuration.getAbsolutePathToSecondVersionProjectRoot());
         try {
             this.automaticBuilder.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
             configuration.setAbsolutePathToProjectRoot(this.pathToSecondVersionOfProgram);
@@ -108,7 +105,7 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
         }
         final TestResult results;
         try {
-            results = TestRunner.run(
+            results = this.testRunner.run(
                     this.classpath + AmplificationHelper.PATH_SEPARATOR + this.secondVersionTargetClasses,
                     this.pathToSecondVersionOfProgram,
                     clone.getQualifiedName(),
@@ -161,7 +158,7 @@ public class ChangeDetectorSelector extends AbstractTestSelector {
                 );
         final TestClassJSON testClassJSON = this.reportJson();
         this.reset();
-        return new TestSelectorElementReportImpl(output.toString(), testClassJSON);
+        return new TestSelectorElementReportImpl(output.toString(), testClassJSON, Collections.emptyList(), "");
     }
 
     private TestClassJSON reportJson() {
