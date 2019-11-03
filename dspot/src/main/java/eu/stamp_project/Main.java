@@ -33,7 +33,6 @@ public class Main {
         dspot.run();
     }
 
-
     public static InputConfiguration parse(String[] args) {
         InputConfiguration inputConfiguration = new InputConfiguration();
         final CommandLine commandLine = new CommandLine(inputConfiguration);

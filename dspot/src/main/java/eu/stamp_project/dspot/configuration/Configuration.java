@@ -20,7 +20,6 @@ import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.compilation.TestCompiler;
 import eu.stamp_project.utils.options.AmplifierEnum;
 import eu.stamp_project.utils.options.check.Checker;
-import eu.stamp_project.utils.options.check.InputErrorException;
 import eu.stamp_project.utils.program.InputConfiguration;
 import eu.stamp_project.utils.report.GlobalReport;
 import eu.stamp_project.utils.report.error.Error;
@@ -35,10 +34,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import picocli.CommandLine;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtType;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;

@@ -2,9 +2,9 @@ package eu.stamp_project.dspot;
 
 import eu.stamp_project.Main;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
-import eu.stamp_project.dspot.assertiongenerator.AssertionGenerator;
 import eu.stamp_project.dspot.common.testTuple;
-import eu.stamp_project.dspot.configuration.Configuration;
+import eu.stamp_project.dspot.configuration.AmplificationSetup;
+import eu.stamp_project.dspot.configuration.DSpotConfiguration;
 import eu.stamp_project.dspot.input_ampl_distributor.InputAmplDistributor;
 import eu.stamp_project.dspot.selector.TestSelector;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
@@ -20,7 +20,6 @@ import spoon.reflect.declaration.CtType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import static eu.stamp_project.utils.report.error.ErrorEnum.*;
 import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_ASSERT_AMPLIFICATION;
 import static eu.stamp_project.utils.report.error.ErrorEnum.ERROR_SELECTION;
@@ -34,14 +33,13 @@ public class DSpot {
 
     public static boolean verbose;
 
-    Configuration configuration;
+    DSpotConfiguration configuration;
+    AmplificationSetup setup;
 
     public DSpot(InputConfiguration inputConfiguration){
-        configuration = new Configuration(inputConfiguration);
-        configuration.run();
+        configuration = new DSpotConfiguration(inputConfiguration);
+        setup = new AmplificationSetup(configuration);
     }
-
-    private TestCompiler testCompiler;
 
     public DSpot(double delta,
                  TestFinder testFinder,
@@ -53,22 +51,24 @@ public class DSpot {
                  boolean shouldGenerateAmplifiedTestClass,
                  AutomaticBuilder automaticBuilder,
                  TestCompiler testCompiler) {
-        Configuration.getInputConfiguration().setDelta(delta);
-        Configuration.setTestSelector(testSelector);
-        Configuration.setInputAmplDistributor(inputAmplDistributor);
-        Configuration.getInputConfiguration().setNbIteration(numberOfIterations);
-        Configuration.setTestFinder(testFinder);
-        Configuration.setCompiler(compiler);
-        Configuration.setOutput(output);
-        Configuration.getInputConfiguration().setGenerateAmplifiedTestClass(shouldGenerateAmplifiedTestClass);
-        Configuration.setAutomaticBuilder(automaticBuilder);
-        Configuration.setTestCompiler(testCompiler);
+        configuration = new DSpotConfiguration();
+        configuration.getInputConfiguration().setDelta(delta);
+        configuration.setTestSelector(testSelector);
+        configuration.setInputAmplDistributor(inputAmplDistributor);
+        configuration.getInputConfiguration().setNbIteration(numberOfIterations);
+        configuration.setTestFinder(testFinder);
+        configuration.setCompiler(compiler);
+        configuration.setOutput(output);
+        configuration.getInputConfiguration().setGenerateAmplifiedTestClass(shouldGenerateAmplifiedTestClass);
+        configuration.setAutomaticBuilder(automaticBuilder);
+        configuration.setTestCompiler(testCompiler);
+        setup = new AmplificationSetup(configuration);
     }
 
     public void run() {
 
         // starting amplification
-        final List<CtType<?>> amplifiedTestClasses = amplify(Configuration.getTestClassesToBeAmplified(), Configuration.getTestMethodsToBeAmplifiedNames());
+        final List<CtType<?>> amplifiedTestClasses = amplify(configuration.getTestClassesToBeAmplified(), configuration.getTestMethodsToBeAmplifiedNames());
         configuration.report(amplifiedTestClasses);
     }
 
@@ -78,13 +78,13 @@ public class DSpot {
 
     public List<CtType<?>> amplify(List<CtType<?>> testClassesToBeAmplified, List<String> testMethodsToBeAmplifiedAsString) {
         for (CtType<?> testClassToBeAmplified : testClassesToBeAmplified) {
-            testTuple tuple = configuration.preAmplification(testClassToBeAmplified,testMethodsToBeAmplifiedAsString);
+            testTuple tuple = setup.preAmplification(testClassToBeAmplified,testMethodsToBeAmplifiedAsString);
 
             // Amplification of the given test methods of the given test class
             final List<CtMethod<?>> amplifiedTestMethods = amplification(tuple.testClassToBeAmplified,tuple.testMethodsToBeAmplified);
-            configuration.postAmplification(testClassToBeAmplified,amplifiedTestMethods);
+            setup.postAmplification(testClassToBeAmplified,amplifiedTestMethods);
         }
-        return configuration.getAmplifiedTestClasses();
+        return setup.getAmplifiedTestClasses();
     }
 
     private int globalNumberOfSelectedAmplification = 0;
@@ -107,7 +107,7 @@ public class DSpot {
         final List<CtMethod<?>> selectedToBeAmplified;
         final List<CtMethod<?>> amplifiedTestMethodsToKeep;
         try {
-            selectedToBeAmplified = configuration.firstSelectorSetup(testClassToBeAmplified,testMethodsToBeAmplified);
+            selectedToBeAmplified = setup.firstSelectorSetup(testClassToBeAmplified,testMethodsToBeAmplified);
 
             // generate tests with additional assertions
             final List<CtMethod<?>> assertionAmplifiedTestMethods = this.assertionsAmplification(testClassToBeAmplified, selectedToBeAmplified);
@@ -161,7 +161,7 @@ public class DSpot {
         final List<CtMethod<?>> inputAmplifiedTests;
         final List<CtMethod<?>> currentTestList;
         try {
-            selectedToBeAmplified = configuration.fullSelectorSetup(testClassToBeAmplified,currentTestListToBeAmplified);
+            selectedToBeAmplified = setup.fullSelectorSetup(testClassToBeAmplified,currentTestListToBeAmplified);
 
             // amplify tests and shrink amplified set with inputAmplDistributor
             inputAmplifiedTests = configuration.getInputAmplDistributor().inputAmplify(selectedToBeAmplified, currentIteration);
