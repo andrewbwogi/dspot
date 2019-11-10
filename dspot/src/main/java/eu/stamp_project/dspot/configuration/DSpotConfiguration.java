@@ -38,6 +38,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import static eu.stamp_project.utils.AmplificationHelper.PATH_SEPARATOR;
 
+/**
+ * Created by Andrew Bwogi
+ * abwogi@kth.se
+ * on 31/10/19
+ */
 public class DSpotConfiguration {
 
     private InputConfiguration inputConfiguration;
@@ -156,8 +161,7 @@ public class DSpotConfiguration {
         }
     }
 
-    public String completeDependencies(InputConfiguration configuration,
-                                              AutomaticBuilder automaticBuilder) {
+    public String completeDependencies(InputConfiguration configuration, AutomaticBuilder automaticBuilder) {
         String dependencies = configuration.getDependencies();
         final String additionalClasspathElements = configuration.getAdditionalClasspathElements();
         final String absolutePathToProjectRoot = configuration.getAbsolutePathToProjectRoot();
@@ -165,7 +169,7 @@ public class DSpotConfiguration {
             dependencies = automaticBuilder.compileAndBuildClasspath();
             configuration.setDependencies(dependencies);
         }
-//      TODO checks this. Since we support different Test Support, we may not need to add artificially junit in the classpath
+        // TODO checks this. Since we support different Test Support, we may not need to add artificially junit in the classpath
         if (!dependencies.contains("junit" + File.separator + "junit" + File.separator + "4")) {
             dependencies = Test.class
                     .getProtectionDomain()
@@ -203,14 +207,21 @@ public class DSpotConfiguration {
         LOGGER.info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");
         final long elapsedTime = System.currentTimeMillis() - startTime;
         LOGGER.info("Elapsed time {} ms", elapsedTime);
-        // global report handling
         GLOBAL_REPORT.output(getInputConfiguration().getOutputDirectory());
         DSpotCache.reset();
         GLOBAL_REPORT.reset();
         AmplificationHelper.reset();
         DSpotPOMCreator.delete();
-        // Send info collected.
         collector.sendInfo();
+    }
+
+    /**
+     * Optimization: an object that holds a dictionary
+     * with large number of cloned CtMethods is not required anymore.
+     * it is cleared before iterating again for next test class.
+     */
+    public void clearData(){
+        this.assertionGenerator = new AssertionGenerator(inputConfiguration.getDelta(), this.compiler, this.testCompiler);
     }
 
     public AssertionGenerator getAssertionGenerator() {
@@ -259,6 +270,14 @@ public class DSpotConfiguration {
 
     public TestFinder getTestFinder() {
         return testFinder;
+    }
+
+    public Logger getLogger() {
+        return LOGGER;
+    }
+
+    public GlobalReport getGlobalReport() {
+        return GLOBAL_REPORT;
     }
 
     public void setTestSelector(TestSelector testSelector) {

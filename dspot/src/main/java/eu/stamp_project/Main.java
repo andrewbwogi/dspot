@@ -8,8 +8,6 @@ import eu.stamp_project.utils.report.GlobalReport;
 import eu.stamp_project.utils.report.error.ErrorReportImpl;
 import eu.stamp_project.utils.report.output.OutputReportImpl;
 import eu.stamp_project.utils.report.output.selector.TestSelectorReportImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 /**
@@ -19,9 +17,6 @@ public class Main {
 
     public static final GlobalReport GLOBAL_REPORT =
             new GlobalReport(new OutputReportImpl(), new ErrorReportImpl(), new TestSelectorReportImpl());
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
-
     public static boolean verbose = false;
 
     public static void main(String[] args) {
