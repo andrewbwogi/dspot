@@ -130,7 +130,7 @@ public class DSpotConfiguration {
     public DSpotConfiguration() {
     }
 
-    private void initHelpers(InputConfiguration configuration){
+    public void initHelpers(InputConfiguration configuration){
         TestFramework.init(configuration.getFactory());
         AmplificationHelper.init(
                 configuration.getTimeOutInMs(),
