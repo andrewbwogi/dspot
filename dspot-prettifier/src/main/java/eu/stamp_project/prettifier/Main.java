@@ -3,6 +3,7 @@ package eu.stamp_project.prettifier;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.configuration.DSpotConfiguration;
 import eu.stamp_project.prettifier.code2vec.Code2VecExecutor;
 import eu.stamp_project.prettifier.code2vec.Code2VecParser;
 import eu.stamp_project.prettifier.code2vec.Code2VecWriter;
@@ -33,8 +34,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static eu.stamp_project.Main.completeDependencies;
-
 /**
  * created by Benjamin DANGLOT
  * benjamin.danglot@inria.fr
@@ -45,6 +44,8 @@ public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     public static ReportJSON report = new ReportJSON();
+
+    private static DSpotConfiguration dspotConfiguration = new DSpotConfiguration();
 
     public static void main(String[] args) {
         InputConfiguration inputConfiguration = new InputConfiguration();
@@ -102,13 +103,13 @@ public class Main {
                                         InputConfiguration configuration) {
 
         final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
-        final String dependencies = completeDependencies(configuration, automaticBuilder);
+        final String dependencies = dspotConfiguration.completeDependencies(configuration, automaticBuilder);
         final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(
                 configuration,
                 dependencies
         );
         configuration.setFactory(compiler.getLauncher().getFactory());
-        eu.stamp_project.Main.initHelpers(configuration);
+        dspotConfiguration.initHelpers(configuration);
 
         final List<CtMethod<?>> testMethods = TestFramework.getAllTest(amplifiedTestClass);
         Main.report.nbTestMethods = testMethods.size();

@@ -1,12 +1,10 @@
 package eu.stamp_project;
 
 import eu.stamp_project.automaticbuilder.AutomaticBuilder;
+import eu.stamp_project.dspot.configuration.DSpotConfiguration;
 import eu.stamp_project.test_framework.TestFramework;
 import eu.stamp_project.utils.compilation.DSpotCompiler;
 import eu.stamp_project.utils.program.InputConfiguration;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import spoon.reflect.code.CtLiteral;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -14,13 +12,8 @@ import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.visitor.chain.CtQueryable;
 import spoon.reflect.visitor.filter.TypeFilter;
-
-import java.io.File;
 import java.util.List;
 import java.util.Set;
-
-import static eu.stamp_project.Main.completeDependencies;
-
 
 /**
  * User: Simon
@@ -29,19 +22,19 @@ import static eu.stamp_project.Main.completeDependencies;
  */
 public class Utils {
 
-	public static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
-
 	private static InputConfiguration configuration;
+
+	private static DSpotConfiguration dspotConfiguration = new DSpotConfiguration();
 
 	public static void init(InputConfiguration configuration) {
 		final AutomaticBuilder automaticBuilder = configuration.getBuilderEnum().getAutomaticBuilder(configuration);
-		final String dependencies = completeDependencies(configuration, automaticBuilder);
+		final String dependencies = dspotConfiguration.completeDependencies(configuration, automaticBuilder);
 		final DSpotCompiler compiler = DSpotCompiler.createDSpotCompiler(
 				configuration,
 				dependencies
 		);
 		configuration.setFactory(compiler.getLauncher().getFactory());
-		eu.stamp_project.Main.initHelpers(configuration);
+		dspotConfiguration.initHelpers(configuration);
 		Utils.configuration = configuration;
 	}
 
