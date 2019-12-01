@@ -12,7 +12,7 @@ import eu.stamp_project.dspot.common.compilation.DSpotCompiler;
 import eu.stamp_project.dspot.common.compilation.TestCompiler;
 import eu.stamp_project.dspot.common.configuration.InitializeDSpot;
 import eu.stamp_project.dspot.common.configuration.options.AutomaticBuilderEnum;
-import eu.stamp_project.dspot.common.configuration.InputConfiguration;
+import eu.stamp_project.dspot.common.configuration.UserInput;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -52,7 +52,7 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
 
     protected TestCompiler testCompiler;
 
-    private static InputConfiguration configuration;
+    private static UserInput configuration;
 
     private static String dependencies;
 
@@ -60,7 +60,7 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
 
     @BeforeClass
     public static void setUpClass() {
-        configuration = new InputConfiguration();
+        configuration = new UserInput();
         configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
 
         AutomaticBuilder builder = AutomaticBuilderEnum.Maven.getAutomaticBuilder(configuration);

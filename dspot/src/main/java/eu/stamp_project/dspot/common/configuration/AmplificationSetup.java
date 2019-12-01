@@ -173,7 +173,7 @@ public class AmplificationSetup {
         dSpotState.getLogger().info("Amplification {}.", amplifiedTestClasses.isEmpty() ? "failed" : "succeed");
         final long elapsedTime = System.currentTimeMillis() - dSpotState.getStartTime();
         dSpotState.getLogger().info("Elapsed time {} ms", elapsedTime);
-        eu.stamp_project.dspot.common.configuration.DSpotState.GLOBAL_REPORT.output(dSpotState.getInputConfiguration().getOutputDirectory());
+        eu.stamp_project.dspot.common.configuration.DSpotState.GLOBAL_REPORT.output(dSpotState.getUserInput().getOutputDirectory());
         DSpotCache.reset();
         eu.stamp_project.dspot.common.configuration.DSpotState.GLOBAL_REPORT.reset();
         AmplificationHelper.reset();
